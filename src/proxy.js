@@ -1,7 +1,7 @@
 import { getToken } from 'next-auth/jwt';
 import { NextResponse } from 'next/server';
 
-export async function middleware(req) {
+export async function proxy(req) {
   const { pathname } = req.nextUrl;
 
   const token = await getToken({
@@ -24,7 +24,7 @@ export async function middleware(req) {
       if (userRole === 'admin') {
         return NextResponse.redirect(new URL('/admin/dashboard', req.url));
       } else if (userRole === 'seller') {
-        return NextResponse.redirect(new URL('/seller/products', req.url));
+        return NextResponse.redirect(new URL('/seller/dashboard', req.url));
       } else if (userRole === 'buyer') {
         return NextResponse.redirect(new URL('/buyer/dashboard', req.url));
       }
@@ -38,7 +38,7 @@ export async function middleware(req) {
       if (userRole === 'admin') {
         return NextResponse.redirect(new URL('/admin/dashboard', req.url));
       } else if (userRole === 'seller') {
-        return NextResponse.redirect(new URL('/seller/products', req.url));
+        return NextResponse.redirect(new URL('/seller/dashboard', req.url));
       } else if (userRole === 'buyer') {
         return NextResponse.redirect(new URL('/buyer/dashboard', req.url));
       }
