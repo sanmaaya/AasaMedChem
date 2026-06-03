@@ -40,16 +40,17 @@ export default function NotificationBell() {
   return (
     <div className="relative" ref={ref}>
       <button
-        onClick={() => setOpen(!open)}
-        className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-secondary hover:bg-accent/30 text-muted-foreground transition cursor-pointer shrink-0"
-        title="Notifications"
-      >
+          onClick={() => setOpen(!open)}
+          className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-secondary hover:bg-accent/30 text-foreground transition cursor-pointer shrink-0 z-20 overflow-visible"
+          title="Notifications"
+          aria-live="polite"
+        >
         <Bell className="h-5 w-5" />
-        {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 h-4 w-4 flex items-center justify-center rounded-full bg-destructive text-[9px] font-black text-white">
-            {unreadCount > 9 ? '9+' : unreadCount}
-          </span>
-        )}
+          {unreadCount > 0 && (
+            <span className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 h-4 w-4 flex items-center justify-center rounded-full bg-destructive text-[9px] font-black text-white shadow-md z-30">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
       </button>
 
       {open && (
