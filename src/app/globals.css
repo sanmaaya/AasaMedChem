@@ -1,103 +1,191 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  /* Heuristic-compliant Jade & Gold Theme - Minimal and high contrast */
-  --background: #faf8f5; /* Pearl Alabaster Canvas */
-  --foreground: #071a16; /* Deep Spruce Black */
-  
-  --card: #ffffff; /* Clean Card */
-  --card-foreground: #071a16;
-  
-  --popover: #ffffff;
-  --popover-foreground: #071a16;
-  
-  --primary: #094f44; /* Deep Spruce Jade Green */
-  --primary-foreground: #faf8f5;
-  
-  --secondary: #f2efea; /* Warm Linen */
-  --secondary-foreground: #071a16;
-  
-  --muted: #f2efea;
-  --muted-foreground: #6b7a77; /* Muted Sage Gray */
-  
-  --accent: #f2efea;
-  --accent-foreground: #094f44;
-  
-  --destructive: #d32f2f; /* Error prevention red (high contrast) */
-  --destructive-foreground: #ffffff;
-  
-  --border: #e6e1da; /* Linen border */
-  --input: #e6e1da;
-  --ring: #c5a880; /* Champagne Gold focus ring */
-  
-  --radius: 0.5rem;
+  --color-primary: #3b82f6;
+  --color-secondary: #10b981;
+  --color-accent: #f59e0b;
+  --color-neutral-50: #f9fafb;
+  --color-neutral-100: #f3f4f6;
+  --color-neutral-200: #e5e7eb;
+  --color-neutral-300: #d1d5db;
+  --color-neutral-400: #9ca3af;
+  --color-neutral-500: #6b7280;
+  --color-neutral-600: #4b5563;
+  --color-neutral-700: #374151;
+  --color-neutral-800: #1f2937;
+  --color-neutral-900: #111827;
 
-  /* Default role fallback */
-  --role-primary: #094f44;
-  --role-primary-foreground: #faf8f5;
-  --role-accent: #c5a880; /* Champagne Gold */
-  --role-accent-light: #f7f3eb;
-  --role-border-active: #c5a880;
+  --font-family-sans: "Inter", sans-serif;
 }
 
-/* Dark Theme overrides */
-.dark {
-  --background: #0b1513; /* Velvet Spruce Teal */
-  --foreground: #eff4f2; /* Soft Mint White */
-  
-  --card: #122420; /* Deep Spruce Card */
-  --card-foreground: #eff4f2;
-  
-  --popover: #122420;
-  --popover-foreground: #eff4f2;
-  
-  --primary: #eff4f2;
-  --primary-foreground: #0b1513;
-  
-  --secondary: #19352f; /* Spruce Shadow */
-  --secondary-foreground: #eff4f2;
-  
-  --muted: #122420;
-  --muted-foreground: #8aa09c;
-  
-  --accent: #19352f;
-  --accent-foreground: #eff4f2;
-  
-  --destructive: #f44336;
-  --destructive-foreground: #ffffff;
-  
-  --border: #1f4039; /* Spruce Border */
-  --input: #1f4039;
-  --ring: #c5a880;
+html.dark {
+  --color-neutral-50: #111827;
+  --color-neutral-100: #1f2937;
+  --color-neutral-200: #374151;
+  --color-neutral-300: #4b5563;
+  --color-neutral-400: #6b7280;
+  --color-neutral-500: #9ca3af;
+  --color-neutral-600: #d1d5db;
+  --color-neutral-700: #e5e7eb;
+  --color-neutral-800: #f3f4f6;
+  --color-neutral-900: #f9fafb;
 }
 
-/* Admin Theme: Professional Slate & Bronze */
+body {
+  font-family: var(--font-family-sans);
+  color: var(--color-neutral-800);
+  background-color: var(--color-neutral-50);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-neutral-900);
+}
+
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+  color: var(--color-neutral-50);
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button,
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.button-primary {
+  background-color: var(--color-primary);
+  color: white;
+  border: 1px solid var(--color-primary);
+}
+
+.button-primary:hover {
+  background-color: #2563eb;
+  border-color: #2563eb;
+}
+
+.button-secondary {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+.button-secondary:hover {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.card {
+  background-color: var(--color-neutral-50);
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  padding: 1.5rem;
+  transition: background-color 0.3s ease;
+}
+
+.dark .card {
+  background-color: var(--color-neutral-800);
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2), 0 2px 10px 0 rgba(0, 0, 0, 0.1);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-neutral-300);
+  border-radius: 0.375rem;
+  background-color: var(--color-neutral-50);
+  color: var(--color-neutral-800);
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="number"],
+.dark textarea,
+.dark select {
+  border-color: var(--color-neutral-600);
+  background-color: var(--color-neutral-700);
+  color: var(--color-neutral-100);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* Utility Classes */
+.text-primary {
+  color: var(--color-primary);
+}
+
+.bg-primary {
+  background-color: var(--color-primary);
+}
+
+.border-primary {
+  border-color: var(--color-primary);
+}
+
+/* Breakpoints (example, adjust as needed) */
+@media (min-width: 640px) {
+  /* sm */
+}
+
+@media (min-width: 768px) {
+  /* md */
+}
+
+@media (min-width: 1024px) {
+  /* lg */
+}
+
+@media (min-width: 1280px) {
+  /* xl */
+}
+
+@media (min-width: 1536px) {
+  /* 2xl */
+}
+
+/* Admin Theme: Professional Blue & Professional */
 .theme-admin {
-  --role-primary: #334155; /* Slate-700 */
-  --role-primary-foreground: #faf8f5;
-  --role-accent: #c2410c; /* Bronze-700 */
-  --role-accent-light: #ffedd5; /* Warm orange tint */
-  --role-border-active: #c2410c;
+  --role-primary: #3b82f6; /* Blue-500 */
+  --role-primary-foreground: #ffffff;
+  --role-accent: #38bdf8; /* Cyan-400 */
+  --role-accent-light: #0c4a6e;
+  --role-border-active: #38bdf8;
 }
 .dark .theme-admin {
-  --role-primary: #f1f5f9;
-  --role-primary-foreground: #334155;
-  --role-accent: #fb923c;
-  --role-accent-light: #431407;
-  --role-border-active: #fb923c;
-}
-
-/* Seller Theme: Trade Teal & Sapphire */
-.theme-seller {
-  --role-primary: #0f766e; /* Teal-700 */
-  --role-primary-foreground: #ffffff;
-  --role-accent: #0284c7; /* Sky-600 */
-  --role-accent-light: #f0f9ff;
-  --role-border-active: #0284c7;
-}
-.dark .theme-seller {
-  --role-primary: #f0fdfa;
-  --role-primary-foreground: #0f766e;
+  --role-primary: #dbeafe;
+  --role-primary-foreground: #1e40af;
   --role-accent: #38bdf8;
   --role-accent-light: #0c4a6e;
   --role-border-active: #38bdf8;
