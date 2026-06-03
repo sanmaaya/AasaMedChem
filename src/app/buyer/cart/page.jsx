@@ -13,8 +13,7 @@ import {
   Loader2, 
   AlertCircle, 
   Check,
-  Building2,
-  Info
+  Building2
 } from 'lucide-react';
 
 export default function BuyerCartPage() {
@@ -170,7 +169,7 @@ export default function BuyerCartPage() {
         <div>
           <h2 className="text-3xl font-extrabold text-foreground tracking-tight">Your Cart</h2>
           <p className="text-sm text-muted-foreground mt-1 font-medium">
-            Review items in your cart. Checkouts containing products from different sellers will be split into separate quotation requests automatically.
+            Review your items before submitting a quotation request.
           </p>
         </div>
         {cartItems.length > 0 && (
@@ -247,14 +246,7 @@ export default function BuyerCartPage() {
             ))}
           </div>
 
-          {/* Cart Splitting Alert Info */}
-          <div className="bg-secondary/25 text-foreground border border-border rounded-xl p-4 text-xs font-medium flex items-start gap-3">
-            <Info className="h-5 w-5 text-role-accent shrink-0 mt-0.5" />
-            <div>
-              <span className="font-extrabold block text-foreground uppercase tracking-wider text-[10px] mb-0.5">Amazon-Style checkout splitting active</span>
-              Checking out will automatically split your order into {groupedSellers.length} separate quotation requests—one for each listed seller.
-            </div>
-          </div>
+
 
           {/* Notes area */}
           <div className="bg-card rounded-xl border border-border p-5 shadow-xs">
@@ -271,7 +263,7 @@ export default function BuyerCartPage() {
           {/* Summary & Submit */}
           <div className="bg-card rounded-xl border border-border p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-xs">
             <div>
-              <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider">Grand Total (All Sellers)</p>
+              <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider">Grand Total</p>
               <p className="text-2xl font-black text-role-primary mt-1">{formatCurrency(grandTotal)}</p>
             </div>
             
