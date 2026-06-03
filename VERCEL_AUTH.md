@@ -44,9 +44,9 @@ Expected seed accounts:
 
 If this query returns no rows, login will always fail or bounce to the landing page.
 
-## 3. Middleware & RBAC
+## 3. Proxy & RBAC
 
-Route protection runs in `src/middleware.ts` (not optional). It:
+Route protection runs in `src/proxy.ts` (Next.js 16 proxy convention — do **not** add a separate `middleware.ts` that re-exports config). It:
 
 - Redirects logged-in users from `/` and `/login` to role dashboards
 - Blocks `/admin`, `/seller`, `/buyer` for wrong roles or guests
@@ -55,7 +55,7 @@ Layouts also call `auth()` server-side as a second check.
 
 ## 4. What was fixed for “login → landing page”
 
-1. **Middleware was not registered** — logic lived in `proxy.js` but Next.js only runs `middleware.ts`.
+1. **Proxy was misconfigured** — Next.js 16 uses `src/proxy.ts` with a named `proxy` export (not a re-exported `middleware.ts`).
 2. **Login sent users to `/`** — now redirects to `/admin/dashboard`, `/seller/dashboard`, or `/buyer/dashboard` based on role.
 3. **`secureCookie` in production** — JWT cookie is read correctly on Vercel HTTPS.
 4. **`trustHost: true`** — Auth.js trusts the Vercel host header.
