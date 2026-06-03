@@ -32,12 +32,14 @@ export default function AdminQuotationDetailPage() {
   const fetchQuotationDetails = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/quotations');
-      if (!res.ok) throw new Error('Failed');
-      const list = await res.json();
-      const quote = list.find(q => q.id === id);
-      if (!quote) toast.error('Quotation not found.');
-      else setQuotation(quote);
+      const res = await fetch(`/api/quotations/${id}`);
+      if (!res.ok) {
+        const err = await res.json();
+        toast.error(err.error || 'Failed to load quotation');
+        return;
+      }
+      const quote = await res.json();
+      setQuotation(quote);
     } catch {
       toast.error('Error loading quotation details.');
     } finally {

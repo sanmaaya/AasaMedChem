@@ -24,6 +24,8 @@ export async function GET(request: Request) {
       conditions.push(eq(quotations.sellerId, user.id));
     } else if (user.role === 'buyer') {
       conditions.push(eq(quotations.buyerId, user.id));
+    } else if (user.role === 'admin') {
+      // Admin can view all quotations; no role-based filter applied
     }
     if (statusFilter) {
       conditions.push(eq(quotations.status, statusFilter));
