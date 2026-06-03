@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Aasa MedChem - Inventory & Order Management System",
+  title: "AasaMedChem - Inventory & Order Management System",
   description: "High-precision pharmaceutical compounding catalogue, seller quote builder, and admin order authorization console.",
 };
 

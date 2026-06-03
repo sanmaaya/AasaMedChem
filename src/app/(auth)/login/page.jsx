@@ -56,13 +56,13 @@ export default function LoginPage() {
       </div>
 
       {/* Main minimal luxury login box */}
-      <div className="w-full max-w-md bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-8 rounded-2xl shadow-xl transition-all duration-300 relative z-10">
+      <div className="w-full max-w-md bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-8 rounded-2xl shadow-xl transition-all duration-300 relative z-10 animate-fade-in">
         <div className="text-center mb-8">
           <div className="h-11 w-11 rounded-lg bg-stone-900 dark:bg-stone-100 flex items-center justify-center text-white dark:text-stone-950 font-black text-xl mx-auto shadow-sm">
             A
           </div>
           <h2 className="text-2xl font-serif-luxury font-black text-stone-850 dark:text-stone-100 mt-4 tracking-tight">
-            Sign In to Aasa MedChem
+            Sign In to AasaMedChem
           </h2>
           <p className="text-stone-500 dark:text-stone-400 text-xs mt-1.5 font-medium">
             Enter your credentials to access your dashboard console

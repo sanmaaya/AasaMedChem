@@ -77,7 +77,7 @@ export default function Sidebar({ user }) {
           <div className="h-8 w-8 rounded-lg bg-role-primary flex items-center justify-center text-role-primary-foreground font-bold text-lg">
             A
           </div>
-          <span className="font-serif-luxury font-black text-stone-800 dark:text-stone-100 text-sm tracking-tight">Aasa MedChem</span>
+          <span className="font-serif-luxury font-black text-stone-800 dark:text-stone-100 text-sm tracking-tight">AasaMedChem</span>
         </div>
         <div className="flex items-center space-x-2">
           <ThemeToggle />
@@ -107,8 +107,8 @@ export default function Sidebar({ user }) {
                 A
               </div>
               <div>
-                <h1 className="font-serif-luxury font-black text-stone-850 dark:text-stone-100 text-sm leading-tight">Aasa MedChem</h1>
-                <span className="text-[9px] text-stone-450 dark:text-stone-500 font-bold uppercase tracking-wider block">Inventory OS</span>
+                <h1 className="font-serif-luxury font-black text-stone-850 dark:text-stone-100 text-sm leading-tight">AasaMedChem</h1>
+                <span className="text-[9px] text-stone-455 dark:text-stone-500 font-bold uppercase tracking-wider block">Inventory OS</span>
               </div>
             </div>
             <ThemeToggle />

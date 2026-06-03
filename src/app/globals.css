@@ -159,13 +159,14 @@
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: "Playfair Display", Georgia, Cambria, "Times New Roman", Times, serif;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   min-height: 100vh;
 }
 
-/* Luxury layout elements */
-h1, h2, h3, .font-serif-luxury {
-  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+/* Luxury layout elements - clean modern sans-serif */
+h1, h2, h3, h4, h5, h6, .font-serif-luxury {
+  font-family: var(--font-geist-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.025em;
 }
 
 input, select, textarea, button, p, span, td, th {

@@ -44,7 +44,7 @@ export default async function LuxuryLandingPage() {
               A
             </div>
             <div>
-              <span className="font-serif-luxury font-black text-lg tracking-tight block">Aasa MedChem</span>
+              <span className="font-serif-luxury font-black text-lg tracking-tight block">AasaMedChem</span>
               <span className="text-[9px] text-stone-500 font-bold uppercase tracking-widest block -mt-1">Luxury Marketplace</span>
             </div>
           </Link>
@@ -73,7 +73,7 @@ export default async function LuxuryLandingPage() {
               href="/login"
               className="inline-flex items-center justify-center bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-stone-200 text-white dark:text-stone-950 font-bold px-4 py-2.5 rounded-lg text-xs transition cursor-pointer"
             >
-              Launch Console
+              Access Dashboard
             </Link>
           </div>
         </div>
@@ -93,7 +93,7 @@ export default async function LuxuryLandingPage() {
               & Elite Distribution.
             </h1>
             
-            <p className="text-stone-550 dark:text-stone-400 text-sm sm:text-base leading-relaxed font-medium max-w-lg">
+            <p className="text-stone-555 dark:text-stone-400 text-sm sm:text-base leading-relaxed font-medium max-w-lg">
               A minimalist, medical B2B commerce standard. Delivering absolute quantity control, Drizzle atomic database locking, and conversion-precision for wholesale pharmaceutical accounts.
             </p>
 
@@ -102,14 +102,14 @@ export default async function LuxuryLandingPage() {
                 href="/login"
                 className="inline-flex items-center justify-center bg-stone-900 hover:bg-stone-805 dark:bg-stone-100 dark:hover:bg-stone-200 text-white dark:text-stone-950 font-bold px-6 py-3.5 rounded-xl text-sm transition shadow-md group cursor-pointer"
               >
-                Sign In to Console
+                Access Dashboard Portal
                 <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 href="/register/seller"
                 className="inline-flex items-center justify-center bg-white hover:bg-stone-50 dark:bg-stone-900 dark:hover:bg-stone-850 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-800 font-bold px-6 py-3.5 rounded-xl text-sm transition"
               >
-                Register as Seller
+                Become a Seller
               </Link>
             </div>
           </div>
@@ -191,7 +191,7 @@ export default async function LuxuryLandingPage() {
           </div>
         </section>
 
-        {/* Partner / Become a Seller Section (Required by User request) */}
+        {/* Partner / Become a Seller Section */}
         <section id="partner" className="max-w-4xl mx-auto px-6 py-16 text-center space-y-6">
           <div className="h-10 w-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600 mx-auto">
             <Globe className="h-5 w-5" />
@@ -201,8 +201,8 @@ export default async function LuxuryLandingPage() {
             Do you wish to be a seller?
           </h2>
           
-          <p className="text-stone-550 dark:text-stone-400 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed font-medium">
-            Join the Aasa MedChem network! Request a seller agent account by filling out your business profile, drug licensing registry, and chemical compounding specializations. Once registered, you can immediately begin creating quotations for buyers.
+          <p className="text-stone-555 dark:text-stone-400 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed font-medium">
+            Join the AasaMedChem network! Request a seller agent account by filling out your business profile, drug licensing registry, and chemical compounding specializations. Once registered, you can immediately begin creating quotations for buyers.
           </p>
 
           <div>
@@ -219,7 +219,7 @@ export default async function LuxuryLandingPage() {
       {/* Luxury Footer */}
       <footer className="border-t border-stone-200 dark:border-stone-850 bg-white dark:bg-stone-900 py-8 px-6 text-center transition duration-300">
         <p className="text-[10px] text-stone-400 dark:text-stone-500 uppercase tracking-widest font-semibold">
-          © 2026 Aasa MedChem Inc. All Rights Reserved. Pharmaceutical Supply Chain OS.
+          © 2026 AasaMedChem Inc. All Rights Reserved. Pharmaceutical Supply Chain OS.
         </p>
       </footer>
     </div>
