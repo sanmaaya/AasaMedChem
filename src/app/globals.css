@@ -1,210 +1,99 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 :root {
-  --color-primary: #3b82f6;
-  --color-secondary: #10b981;
-  --color-accent: #f59e0b;
-  --color-neutral-50: #f9fafb;
-  --color-neutral-100: #f3f4f6;
-  --color-neutral-200: #e5e7eb;
-  --color-neutral-300: #d1d5db;
-  --color-neutral-400: #9ca3af;
-  --color-neutral-500: #6b7280;
-  --color-neutral-600: #4b5563;
-  --color-neutral-700: #374151;
-  --color-neutral-800: #1f2937;
-  --color-neutral-900: #111827;
+  --background: #fafaf9;
+  --foreground: #1c1917;
+  --card: #ffffff;
+  --card-foreground: #1c1917;
+  --popover: #ffffff;
+  --popover-foreground: #1c1917;
+  --primary: #1c1917;
+  --primary-foreground: #fafaf9;
+  --secondary: #f5f5f4;
+  --secondary-foreground: #1c1917;
+  --muted: #f5f5f4;
+  --muted-foreground: #78716c;
+  --accent: #fef3c7;
+  --accent-foreground: #78350f;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #e7e5e4;
+  --input: #e7e5e4;
+  --ring: #b45309;
+  --radius: 0.625rem;
 
-  --font-family-sans: "Inter", sans-serif;
+  --role-primary: #1c1917;
+  --role-primary-foreground: #fafaf9;
+  --role-accent: #b45309;
+  --role-accent-light: #fef3c7;
+  --role-border-active: #d97706;
 }
 
-html.dark {
-  --color-neutral-50: #111827;
-  --color-neutral-100: #1f2937;
-  --color-neutral-200: #374151;
-  --color-neutral-300: #4b5563;
-  --color-neutral-400: #6b7280;
-  --color-neutral-500: #9ca3af;
-  --color-neutral-600: #d1d5db;
-  --color-neutral-700: #e5e7eb;
-  --color-neutral-800: #f3f4f6;
-  --color-neutral-900: #f9fafb;
+.dark {
+  --background: #0c0a09;
+  --foreground: #f5f5f4;
+  --card: #1c1917;
+  --card-foreground: #f5f5f4;
+  --popover: #1c1917;
+  --popover-foreground: #f5f5f4;
+  --primary: #f5f5f4;
+  --primary-foreground: #1c1917;
+  --secondary: #292524;
+  --secondary-foreground: #f5f5f4;
+  --muted: #1c1917;
+  --muted-foreground: #a8a29e;
+  --accent: #451a03;
+  --accent-foreground: #fde68a;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #292524;
+  --input: #292524;
+  --ring: #f59e0b;
 }
 
-body {
-  font-family: var(--font-family-sans);
-  color: var(--color-neutral-800);
-  background-color: var(--color-neutral-50);
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  color: var(--color-neutral-900);
-}
-
-.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
-  color: var(--color-neutral-50);
-}
-
-a {
-  color: var(--color-primary);
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-button,
-.button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-.button-primary {
-  background-color: var(--color-primary);
-  color: white;
-  border: 1px solid var(--color-primary);
-}
-
-.button-primary:hover {
-  background-color: #2563eb;
-  border-color: #2563eb;
-}
-
-.button-secondary {
-  background-color: transparent;
-  color: var(--color-primary);
-  border: 1px solid var(--color-primary);
-}
-
-.button-secondary:hover {
-  background-color: var(--color-primary);
-  color: white;
-}
-
-.card {
-  background-color: var(--color-neutral-50);
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  padding: 1.5rem;
-  transition: background-color 0.3s ease;
-}
-
-.dark .card {
-  background-color: var(--color-neutral-800);
-  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2), 0 2px 10px 0 rgba(0, 0, 0, 0.1);
-}
-
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="number"],
-textarea,
-select {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--color-neutral-300);
-  border-radius: 0.375rem;
-  background-color: var(--color-neutral-50);
-  color: var(--color-neutral-800);
-  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
-}
-
-.dark input[type="text"],
-.dark input[type="email"],
-.dark input[type="password"],
-.dark input[type="number"],
-.dark textarea,
-.dark select {
-  border-color: var(--color-neutral-600);
-  background-color: var(--color-neutral-700);
-  color: var(--color-neutral-100);
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-}
-
-/* Utility Classes */
-.text-primary {
-  color: var(--color-primary);
-}
-
-.bg-primary {
-  background-color: var(--color-primary);
-}
-
-.border-primary {
-  border-color: var(--color-primary);
-}
-
-/* Breakpoints (example, adjust as needed) */
-@media (min-width: 640px) {
-  /* sm */
-}
-
-@media (min-width: 768px) {
-  /* md */
-}
-
-@media (min-width: 1024px) {
-  /* lg */
-}
-
-@media (min-width: 1280px) {
-  /* xl */
-}
-
-@media (min-width: 1536px) {
-  /* 2xl */
-}
-
-/* Admin Theme: Professional Blue & Professional */
 .theme-admin {
-  --role-primary: #3b82f6; /* Blue-500 */
-  --role-primary-foreground: #ffffff;
-  --role-accent: #38bdf8; /* Cyan-400 */
-  --role-accent-light: #0c4a6e;
-  --role-border-active: #38bdf8;
+  --role-primary: #1c1917;
+  --role-primary-foreground: #fafaf9;
+  --role-accent: #b45309;
+  --role-accent-light: #fef3c7;
+  --role-border-active: #d97706;
 }
 .dark .theme-admin {
-  --role-primary: #dbeafe;
-  --role-primary-foreground: #1e40af;
-  --role-accent: #38bdf8;
-  --role-accent-light: #0c4a6e;
-  --role-border-active: #38bdf8;
+  --role-primary: #f5f5f4;
+  --role-primary-foreground: #1c1917;
+  --role-accent: #f59e0b;
+  --role-accent-light: #451a03;
+  --role-border-active: #f59e0b;
 }
 
-/* Buyer Theme: Health Emerald & Sage */
-.theme-buyer {
-  --role-primary: #15803d; /* Green-700 */
+.theme-seller {
+  --role-primary: #1e3a5f;
   --role-primary-foreground: #ffffff;
-  --role-accent: #059669; /* Emerald-600 */
-  --role-accent-light: #f0fdf4;
-  --role-border-active: #059669;
+  --role-accent: #2563eb;
+  --role-accent-light: #eff6ff;
+  --role-border-active: #3b82f6;
+}
+.dark .theme-seller {
+  --role-primary: #e2e8f0;
+  --role-primary-foreground: #0f172a;
+  --role-accent: #60a5fa;
+  --role-accent-light: #172554;
+  --role-border-active: #60a5fa;
+}
+
+.theme-buyer {
+  --role-primary: #334155;
+  --role-primary-foreground: #ffffff;
+  --role-accent: #64748b;
+  --role-accent-light: #f1f5f9;
+  --role-border-active: #475569;
 }
 .dark .theme-buyer {
-  --role-primary: #f0fdf4;
-  --role-primary-foreground: #15803d;
-  --role-accent: #34d399;
-  --role-accent-light: #064e3b;
-  --role-border-active: #34d399;
+  --role-primary: #e2e8f0;
+  --role-primary-foreground: #0f172a;
+  --role-accent: #94a3b8;
+  --role-accent-light: #1e293b;
+  --role-border-active: #94a3b8;
 }
 
 @theme {
@@ -213,58 +102,23 @@ select:focus {
   --color-ring: var(--ring);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-  
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
-  
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
-  
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
-  
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
-
-  /* Map standard slate to dynamic theme variables */
-  --color-slate-50: var(--secondary);
-  --color-slate-100: var(--secondary);
-  --color-slate-200: var(--border);
-  --color-slate-300: var(--border);
-  --color-slate-400: var(--muted-foreground);
-  --color-slate-500: var(--muted-foreground);
-  --color-slate-600: var(--muted-foreground);
-  --color-slate-700: var(--foreground);
-  --color-slate-800: var(--foreground);
-  --color-slate-900: var(--foreground);
-  --color-slate-950: var(--background);
-
-  /* Map standard stone to dynamic theme variables */
-  --color-stone-50: var(--secondary);
-  --color-stone-100: var(--secondary);
-  --color-stone-200: var(--border);
-  --color-stone-300: var(--border);
-  --color-stone-400: var(--muted-foreground);
-  --color-stone-500: var(--muted-foreground);
-  --color-stone-600: var(--muted-foreground);
-  --color-stone-700: var(--foreground);
-  --color-stone-800: var(--foreground);
-  --color-stone-900: var(--foreground);
-  --color-stone-950: var(--background);
-
-  /* Role dynamic colors */
   --color-role-primary: var(--role-primary);
   --color-role-primary-foreground: var(--role-primary-foreground);
   --color-role-accent: var(--role-accent);
   --color-role-accent-light: var(--role-accent-light);
   --color-role-border-active: var(--role-border-active);
-  
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
@@ -273,26 +127,38 @@ select:focus {
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
   min-height: 100vh;
 }
 
-/* Luxury layout elements - clean modern sans-serif */
-h1, h2, h3, h4, h5, h6, .font-serif-luxury {
-  font-family: var(--font-geist-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  letter-spacing: -0.025em;
+h1,
+h2,
+h3,
+h4,
+.font-serif-luxury {
+  font-family: var(--font-serif), Georgia, "Times New Roman", serif;
+  letter-spacing: -0.02em;
 }
 
-input, select, textarea, button, p, span, td, th {
-  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-}
-
-/* Transition effects */
 .transition-all-custom {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Theme switch transitions */
 html {
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.45s ease-out forwards;
 }

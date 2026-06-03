@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "db:push": "drizzle-kit push",
-    "db:seed": "node --env-file=.env src/scripts/seed.js"
+    "db:seed": "node --env-file=.env --import tsx src/scripts/seed.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1060.0",
@@ -34,9 +34,15 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^22.15.21",
+    "@types/react": "^19.1.6",
+    "@types/react-dom": "^19.1.5",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
-    "tailwindcss": "^4"
+    "tailwindcss": "^4",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
   }
 }

@@ -2,7 +2,7 @@
 
 A production-ready inventory and order management system built with **Next.js 14 (App Router)**, **Neon PostgreSQL (Serverless)**, **Drizzle ORM**, **NextAuth.js v5 (Credentials)**, and **Tailwind CSS**.
 
-Written completely in JavaScript (React ESM) as per user preference.
+Written in **TypeScript** (React + Next.js App Router).
 
 ---
 
@@ -143,10 +143,10 @@ Using Javascript floats (`0.1 + 0.2 === 0.30000000000000004`) causes critical pe
    ```bash
    cp .env.example .env
    ```
-   Open `.env` and fill in:
+   Open `.env` and fill in (see `.env.example`):
    - `DATABASE_URL`: Your Neon PostgreSQL connection string (including `sslmode=require`)
-   - `NEXTAUTH_SECRET`: A secure random secret (e.g. run `openssl rand -base64 32`)
-   - `NEXTAUTH_URL`: `http://localhost:3000`
+   - `AUTH_SECRET` and `NEXTAUTH_SECRET`: Same secure random value (e.g. `openssl rand -base64 32`)
+   - `AUTH_URL` and `NEXTAUTH_URL`: `http://localhost:3000`
 
 ### Database Sync & Seed
 1. Sync your schema directly to your PostgreSQL database instance:
@@ -218,6 +218,6 @@ To verify the system end-to-end, follow these actions:
 
 1. Create a project in [Vercel](https://vercel.com).
 2. Link your Git repository containing this code.
-3. Configure the environment variables (`DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`) in Vercel project settings.
+3. Configure environment variables in Vercel (see [VERCEL_AUTH.md](./VERCEL_AUTH.md) for the full auth/RBAC checklist).
 4. Deploy the project.
-5. Seed your database using the Vercel console or run `npm run db:seed` locally with the production `DATABASE_URL` before testing.
+5. **Seed production Neon** with `npm run db:push` and `npm run db:seed` using the **same** `DATABASE_URL` as Vercel before testing login.
