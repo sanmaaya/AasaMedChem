@@ -61,12 +61,12 @@ export async function GET(request) {
   }
 }
 
-// POST /api/quotations - Submit a new quotation (Seller Only)
+// POST /api/quotations - Submit a new quotation (Seller or Buyer)
 export async function POST(request) {
   const session = await auth();
 
-  if (!session || session.user.role !== 'seller') {
-    return NextResponse.json({ error: 'Unauthorized. Seller role required.' }, { status: 403 });
+  if (!session || (session.user.role !== 'seller' && session.user.role !== 'buyer')) {
+    return NextResponse.json({ error: 'Unauthorized. Role not authorized to submit orders.' }, { status: 403 });
   }
 
   try {
@@ -74,85 +74,127 @@ export async function POST(request) {
     const { buyerId, items, notes } = body;
 
     // Validate inputs
-    if (!buyerId) {
-      return NextResponse.json({ error: 'A buyer account must be selected.' }, { status: 400 });
-    }
-
     if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: 'Quotation must include at least one item.' }, { status: 400 });
+    }
+
+    const isBuyer = session.user.role === 'buyer';
+    const finalBuyerId = isBuyer ? session.user.id : buyerId;
+
+    if (!finalBuyerId) {
+      return NextResponse.json({ error: 'A buyer account must be specified.' }, { status: 400 });
     }
 
     // Verify buyer exists and indeed has role = 'buyer'
     const [buyerUser] = await db.select()
       .from(users)
-      .where(and(eq(users.id, buyerId), eq(users.role, 'buyer')))
+      .where(and(eq(users.id, finalBuyerId), eq(users.role, 'buyer')))
       .limit(1);
 
     if (!buyerUser) {
-      return NextResponse.json({ error: 'Invalid buyer selected.' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid buyer account selected.' }, { status: 400 });
     }
 
-    // Run within a transaction to guarantee atomic execution
-    const newQuotation = await db.transaction(async (tx) => {
-      let grandTotal = new Decimal(0);
-      const itemsToInsert = [];
+    // Group items by sellerId
+    const groupedBySeller = {}; // sellerId -> Array of items
 
-      for (const cartItem of items) {
-        const { productId, orderedUnit, orderedQuantity } = cartItem;
-        const qty = new Decimal(orderedQuantity || 0);
+    for (const cartItem of items) {
+      const { productId, orderedUnit, orderedQuantity } = cartItem;
+      const qty = new Decimal(orderedQuantity || 0);
 
-        if (qty.lte(0)) {
-          throw new Error('Quantity must be greater than zero.');
-        }
-
-        // Fetch product to retrieve latest price and check status
-        const [prod] = await tx.select()
-          .from(products)
-          .where(and(eq(products.id, productId), eq(products.isActive, true)))
-          .limit(1);
-
-        if (!prod) {
-          throw new Error(`Product not found or is inactive: ${productId}`);
-        }
-
-        // Calculate converted variables
-        const baseQty = toBaseQuantity(qty.toNumber(), orderedUnit);
-        const unitPrice = getPricePerOrderedUnit(parseFloat(prod.basePricePerUnit), orderedUnit);
-        const lineTotal = qty.mul(unitPrice);
-
-        grandTotal = grandTotal.add(lineTotal);
-
-        itemsToInsert.push({
-          productId,
-          orderedUnit,
-          orderedQuantity: qty.toString(),
-          baseQuantity: baseQty.toString(),
-          unitPriceAtOrder: unitPrice.toString(),
-          lineTotal: lineTotal.toString(),
-        });
+      if (qty.lte(0)) {
+        throw new Error('Quantity must be greater than zero.');
       }
 
-      // 1. Create the Quotation record
-      const [insertedQuote] = await tx.insert(quotations).values({
-        sellerId: session.user.id,
-        buyerId,
-        status: 'pending',
-        totalAmount: grandTotal.toString(),
-        notes: notes || null,
-      }).returning();
+      // Fetch product to retrieve latest price and check status
+      const [prod] = await db.select()
+        .from(products)
+        .where(and(eq(products.id, productId), eq(products.isActive, true)))
+        .limit(1);
 
-      // 2. Create the Quotation Items records
-      const finalItems = itemsToInsert.map(item => ({
-        ...item,
-        quotationId: insertedQuote.id
-      }));
+      if (!prod) {
+        throw new Error(`Product not found or is inactive: ${productId}`);
+      }
 
-      await tx.insert(quotationItems).values(finalItems);
+      // Determine seller ID for this product
+      let itemSellerId = prod.sellerId;
+      if (!itemSellerId) {
+        // Fallback to the default seeded seller
+        const [defaultSeller] = await db.select()
+          .from(users)
+          .where(eq(users.role, 'seller'))
+          .limit(1);
+        if (!defaultSeller) {
+          throw new Error('No active seller representative found to link with this listing.');
+        }
+        itemSellerId = defaultSeller.id;
+      }
 
-      return insertedQuote;
+      // If logged in user is a seller, they can only sell products listed under their own ID
+      if (!isBuyer && session.user.id !== itemSellerId) {
+        throw new Error(`Unauthorized. You do not have authority to sell product: ${prod.name}`);
+      }
+
+      if (!groupedBySeller[itemSellerId]) {
+        groupedBySeller[itemSellerId] = [];
+      }
+
+      groupedBySeller[itemSellerId].push({
+        product: prod,
+        orderedUnit,
+        orderedQuantity: qty
+      });
+    }
+
+    // Create quotations inside a transaction
+    const createdQuotes = [];
+
+    await db.transaction(async (tx) => {
+      for (const sellerId of Object.keys(groupedBySeller)) {
+        const sellerItems = groupedBySeller[sellerId];
+        let grandTotal = new Decimal(0);
+        const itemsToInsert = [];
+
+        for (const element of sellerItems) {
+          const { product, orderedUnit, orderedQuantity } = element;
+          
+          const baseQty = toBaseQuantity(orderedQuantity.toNumber(), orderedUnit);
+          const unitPrice = getPricePerOrderedUnit(parseFloat(product.basePricePerUnit), orderedUnit);
+          const lineTotal = orderedQuantity.mul(unitPrice);
+
+          grandTotal = grandTotal.add(lineTotal);
+
+          itemsToInsert.push({
+            productId: product.id,
+            orderedUnit,
+            orderedQuantity: orderedQuantity.toString(),
+            baseQuantity: baseQty.toString(),
+            unitPriceAtOrder: unitPrice.toString(),
+            lineTotal: lineTotal.toString(),
+          });
+        }
+
+        // 1. Create the Quotation record
+        const [insertedQuote] = await tx.insert(quotations).values({
+          sellerId,
+          buyerId: finalBuyerId,
+          status: 'pending',
+          totalAmount: grandTotal.toString(),
+          notes: notes || null,
+        }).returning();
+
+        // 2. Create the Quotation Items records
+        const finalItems = itemsToInsert.map(item => ({
+          ...item,
+          quotationId: insertedQuote.id
+        }));
+
+        await tx.insert(quotationItems).values(finalItems);
+        createdQuotes.push(insertedQuote);
+      }
     });
 
-    return NextResponse.json(newQuotation, { status: 201 });
+    return NextResponse.json(createdQuotes.length === 1 ? createdQuotes[0] : createdQuotes, { status: 201 });
   } catch (err) {
     console.error("POST /api/quotations transaction error:", err);
     return NextResponse.json({ error: err.message || 'Failed to submit quotation' }, { status: 400 });

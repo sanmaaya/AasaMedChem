@@ -3,8 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import QuotationTable from '@/components/QuotationTable.jsx';
 import { FileText, RefreshCw } from 'lucide-react';
+import { useToast } from '@/components/ToastProvider.jsx';
 
 export default function SellerQuotationsPage() {
+  const toast = useToast();
   const [quotations, setQuotations] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -13,43 +15,36 @@ export default function SellerQuotationsPage() {
       setLoading(true);
       const res = await fetch('/api/quotations');
       if (!res.ok) throw new Error('Failed to fetch quotations');
-      const data = await res.json();
-      setQuotations(data);
-    } catch (err) {
-      console.error(err);
-      alert('Error fetching quotations.');
+      setQuotations(await res.json());
+    } catch {
+      toast.error('Failed to load quotations.');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchQuotations();
-  }, []);
+  useEffect(() => { fetchQuotations(); }, []);
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight">Quotations History</h2>
-          <p className="text-sm text-slate-500 mt-1">Review the status and details of quotations you have submitted for Buyer approval.</p>
+          <h2 className="text-3xl font-extrabold text-foreground tracking-tight">Quotations History</h2>
+          <p className="text-sm text-muted-foreground mt-1">Review all quotations you have submitted for buyer approval.</p>
         </div>
-        <button
-          onClick={fetchQuotations}
-          className="p-2 border border-slate-200 hover:bg-slate-50 rounded-lg text-slate-500 transition cursor-pointer"
-          title="Refresh quotations list"
-        >
-          <RefreshCw className="h-5 w-5" />
+        <button onClick={fetchQuotations} className="p-2.5 border border-border hover:bg-secondary rounded-lg text-muted-foreground transition cursor-pointer" title="Refresh">
+          <RefreshCw className="h-4 w-4" />
         </button>
       </div>
 
-      {/* Table */}
       {loading ? (
         <div className="space-y-3">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-20 w-full bg-white border border-slate-200 rounded-xl animate-pulse" />
-          ))}
+          {[...Array(4)].map((_, i) => <div key={i} className="h-20 w-full bg-card border border-border rounded-xl animate-pulse" />)}
+        </div>
+      ) : quotations.length === 0 ? (
+        <div className="text-center py-16 bg-card border border-border rounded-xl">
+          <FileText className="h-14 w-14 text-muted-foreground/20 mx-auto mb-3" />
+          <p className="text-muted-foreground text-sm font-medium">No quotations submitted yet.</p>
         </div>
       ) : (
         <QuotationTable quotations={quotations} role="seller" />

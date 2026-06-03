@@ -1,338 +1,358 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { 
-  ArrowLeft, 
-  Loader2, 
-  User, 
-  Briefcase, 
-  Calendar, 
-  AlertCircle, 
-  Check, 
-  X, 
-  FileSpreadsheet
+import {
+  ArrowLeft, Loader2, User, Briefcase, Calendar,
+  AlertCircle, Check, X, FileSpreadsheet, Send,
+  Printer, Package, Truck, MapPin, CheckCircle2, MessageSquare
 } from 'lucide-react';
 import { formatCurrency, getUnitLabel } from '@/lib/units.js';
+import { useToast } from '@/components/ToastProvider.jsx';
+
+const ORDER_STEPS = ['pending', 'packed', 'dispatched', 'delivered'];
+const STEP_ICONS  = [Package, Package, Truck, CheckCircle2];
+const STEP_LABELS = ['Pending', 'Packed', 'Dispatched', 'Delivered'];
 
 export default function AdminQuotationDetailPage() {
   const router = useRouter();
   const params = useParams();
   const { id } = params;
+  const toast = useToast();
 
   const [quotation, setQuotation] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [successMsg, setSuccessMsg] = useState('');
+  const [comments, setComments] = useState([]);
+  const [commentText, setCommentText] = useState('');
+  const [postingComment, setPostingComment] = useState(false);
+  const commentEndRef = useRef(null);
 
   const fetchQuotationDetails = async () => {
     try {
       setLoading(true);
       const res = await fetch('/api/quotations');
-      if (!res.ok) throw new Error('Failed to load quotations');
-      
+      if (!res.ok) throw new Error('Failed');
       const list = await res.json();
       const quote = list.find(q => q.id === id);
-      
-      if (!quote) {
-        setError('Quotation record not found.');
-      } else {
-        setQuotation(quote);
-      }
-    } catch (err) {
-      console.error(err);
-      setError('Error loading quotation details.');
+      if (!quote) toast.error('Quotation not found.');
+      else setQuotation(quote);
+    } catch {
+      toast.error('Error loading quotation details.');
     } finally {
       setLoading(false);
     }
   };
 
+  const fetchComments = async () => {
+    try {
+      const res = await fetch(`/api/quotations/${id}/comments`);
+      if (res.ok) setComments(await res.json());
+    } catch {}
+  };
+
   useEffect(() => {
-    if (id) {
-      fetchQuotationDetails();
-    }
+    if (id) { fetchQuotationDetails(); fetchComments(); }
   }, [id]);
 
+  useEffect(() => { commentEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [comments]);
+
   const handleStatusChange = async (newStatus) => {
-    const confirmationText = newStatus === 'approved' 
-      ? 'Are you sure you want to APPROVE this quotation? This will lock in pricing and decrement stock.' 
-      : 'Are you sure you want to REJECT this quotation?';
-
-    if (!confirm(confirmationText)) return;
-
+    const msg = newStatus === 'approved'
+      ? 'APPROVE this quotation? Stock will be decremented immediately.'
+      : 'REJECT this quotation?';
+    if (!confirm(msg)) return;
     try {
       setActionLoading(true);
-      setError('');
-      setSuccessMsg('');
-
       const res = await fetch(`/api/quotations/${id}/status`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: newStatus }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
       });
-
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to update quotation status');
-      }
-
-      setSuccessMsg(`Quotation has been successfully ${newStatus}!`);
-      // Reload current quotation data to show updated status
+      if (!res.ok) throw new Error(data.error);
+      toast.success(`Quotation ${newStatus} successfully!`);
       await fetchQuotationDetails();
       router.refresh();
     } catch (err) {
-      console.error(err);
-      setError(err.message || 'An error occurred while updating status.');
+      toast.error(err.message || 'Failed to update status.');
     } finally {
       setActionLoading(false);
     }
   };
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'pending':
-        return 'bg-amber-50 text-amber-700 border-amber-200';
-      case 'approved':
-        return 'bg-emerald-50 text-emerald-700 border-emerald-250';
-      case 'rejected':
-        return 'bg-rose-50 text-rose-700 border-rose-250';
-      default:
-        return 'bg-slate-50 text-slate-700 border-slate-200';
+  const handleOrderStatusChange = async (newOrderStatus) => {
+    try {
+      setActionLoading(true);
+      const res = await fetch(`/api/quotations/${id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderStatus: newOrderStatus })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      toast.success(`Order status updated to "${newOrderStatus}"`);
+      await fetchQuotationDetails();
+    } catch (err) {
+      toast.error(err.message || 'Failed to update order status.');
+    } finally {
+      setActionLoading(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <Loader2 className="h-10 w-10 text-slate-400 animate-spin mb-4" />
-        <p className="text-slate-500 font-medium text-sm">Loading quotation profile...</p>
-      </div>
-    );
-  }
+  const handlePostComment = async () => {
+    if (!commentText.trim()) return;
+    try {
+      setPostingComment(true);
+      const res = await fetch(`/api/quotations/${id}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ comment: commentText.trim() })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setComments(prev => [...prev, data]);
+      setCommentText('');
+      toast.success('Comment added.');
+    } catch (err) {
+      toast.error(err.message || 'Failed to post comment.');
+    } finally {
+      setPostingComment(false);
+    }
+  };
 
-  if (error && !quotation) {
-    return (
-      <div className="space-y-6 max-w-4xl mx-auto">
-        <Link
-          href="/admin/quotations"
-          className="inline-flex items-center text-xs font-bold text-slate-500 hover:text-slate-700 bg-white border border-slate-200 rounded-lg px-3 py-1.5 transition shadow-xs"
-        >
-          <ArrowLeft className="h-4 w-4 mr-1.5" /> Back to Quotations
-        </Link>
-        <div className="bg-red-50 text-red-750 border border-red-200 rounded-xl p-4 font-semibold text-sm">
-          {error}
-        </div>
-      </div>
-    );
-  }
+  const getStatusBadge = (status) => {
+    const map = {
+      pending: 'bg-amber-500/10 text-amber-700 border-amber-500/20',
+      approved: 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20',
+      rejected: 'bg-red-500/10 text-red-700 border-red-500/20',
+    };
+    return map[status] || 'bg-secondary text-muted-foreground border-border';
+  };
+
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center py-20">
+      <Loader2 className="h-10 w-10 text-role-accent animate-spin mb-4" />
+      <p className="text-muted-foreground font-medium text-sm">Loading quotation profile...</p>
+    </div>
+  );
+
+  if (!quotation) return (
+    <div className="space-y-4">
+      <Link href="/admin/quotations" className="inline-flex items-center text-xs font-bold text-muted-foreground hover:text-foreground bg-card border border-border rounded-lg px-3 py-1.5 transition">
+        <ArrowLeft className="h-4 w-4 mr-1.5" /> Back
+      </Link>
+      <div className="bg-destructive/10 text-destructive border border-destructive/20 rounded-xl p-4 text-sm font-semibold">Quotation not found.</div>
+    </div>
+  );
+
+  const currentStepIdx = ORDER_STEPS.indexOf(quotation.orderStatus || 'pending');
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      {/* Back button */}
-      <div className="flex justify-between items-center">
-        <Link
-          href="/admin/quotations"
-          className="inline-flex items-center text-xs font-bold text-slate-500 hover:text-slate-700 bg-white border border-slate-200 rounded-lg px-3 py-1.5 transition shadow-xs"
-        >
+      {/* Top bar */}
+      <div className="flex flex-wrap justify-between items-center gap-3">
+        <Link href="/admin/quotations" className="inline-flex items-center text-xs font-bold text-muted-foreground hover:text-foreground bg-card border border-border rounded-lg px-3 py-1.5 transition">
           <ArrowLeft className="h-4 w-4 mr-1.5" /> Back to Quotations
         </Link>
-        
-        <div className="flex items-center space-x-2">
-          <Calendar className="h-4 w-4 text-slate-400" />
-          <span className="text-xs font-semibold text-slate-500">
-            {new Date(quotation.createdAt).toLocaleString('en-IN', {
-              day: '2-digit',
-              month: 'short',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit'
-            })}
-          </span>
+        <div className="flex items-center gap-2">
+          <Calendar className="h-4 w-4 text-muted-foreground" />
+          <span className="text-xs font-semibold text-muted-foreground">{new Date(quotation.createdAt).toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}</span>
+          <Link
+            href={`/admin/quotations/${id}/print`}
+            target="_blank"
+            className="inline-flex items-center gap-1.5 text-xs font-bold bg-role-primary text-role-primary-foreground px-3 py-1.5 rounded-lg hover:opacity-90 transition"
+          >
+            <Printer className="h-3.5 w-3.5" /> Print Invoice
+          </Link>
         </div>
       </div>
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-5 border border-slate-200 rounded-xl shadow-xs">
+      {/* Header card */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-card p-5 border border-border rounded-xl shadow-xs">
         <div>
-          <span className="text-xs font-bold text-slate-400 font-mono">QUOTATION ID: #{quotation.id.toUpperCase()}</span>
-          <h2 className="text-2xl font-black text-slate-800 tracking-tight mt-1">Review Request</h2>
+          <span className="text-xs font-bold text-muted-foreground font-mono">QUOTATION ID: #{quotation.id.toUpperCase()}</span>
+          <h2 className="text-2xl font-black text-foreground tracking-tight mt-1">Review Request</h2>
         </div>
-        <div className="flex items-center">
-          <span className={`text-xs font-black uppercase px-3.5 py-1 rounded-full border ${getStatusBadge(quotation.status)}`}>
-            {quotation.status}
-          </span>
-        </div>
+        <span className={`text-xs font-black uppercase px-3.5 py-1 rounded-full border ${getStatusBadge(quotation.status)}`}>{quotation.status}</span>
       </div>
 
-      {/* Notifications */}
-      {successMsg && (
-        <div className="bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl p-4 text-sm font-semibold flex items-center">
-          <Check className="h-5 w-5 text-emerald-600 mr-2 shrink-0" />
-          {successMsg}
-        </div>
-      )}
-
-      {error && (
-        <div className="bg-rose-50 text-rose-800 border border-rose-200 rounded-xl p-4 text-sm font-semibold flex items-start">
-          <AlertCircle className="h-5 w-5 text-rose-600 mr-2 shrink-0 mt-0.5" />
-          <div>
-            <strong className="font-bold">Execution Failed!</strong>
-            <p className="text-rose-700 text-xs mt-0.5">{error}</p>
+      {/* Order Status Stepper (for approved quotations) */}
+      {quotation.status === 'approved' && (
+        <div className="bg-card border border-border rounded-xl p-6 shadow-xs">
+          <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-5">Order Tracking</h4>
+          <div className="flex items-start justify-between relative">
+            <div className="absolute top-5 left-0 right-0 h-0.5 bg-border" />
+            {ORDER_STEPS.map((step, i) => {
+              const Icon = STEP_ICONS[i];
+              const isCompleted = i <= currentStepIdx;
+              const isCurrent   = i === currentStepIdx;
+              return (
+                <div key={step} className="flex flex-col items-center gap-2 z-10 flex-1">
+                  <button
+                    disabled={actionLoading || i <= currentStepIdx}
+                    onClick={() => handleOrderStatusChange(step)}
+                    className={`h-10 w-10 rounded-full flex items-center justify-center border-2 transition-all cursor-pointer disabled:cursor-not-allowed ${
+                      isCompleted
+                        ? 'bg-role-primary border-role-primary text-role-primary-foreground'
+                        : 'bg-card border-border text-muted-foreground hover:border-role-primary hover:text-role-primary'
+                    }`}
+                    title={i <= currentStepIdx ? `Already at "${step}"` : `Advance to "${step}"`}
+                  >
+                    <Icon className="h-4 w-4" />
+                  </button>
+                  <span className={`text-[10px] font-bold text-center ${isCurrent ? 'text-role-primary' : isCompleted ? 'text-foreground' : 'text-muted-foreground'}`}>
+                    {STEP_LABELS[i]}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* Seller and Buyer Cards */}
+      {/* Seller & Buyer Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {/* Seller Info */}
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs">
-          <div className="flex items-center space-x-3 mb-4 border-b border-slate-100 pb-3">
-            <div className="h-9 w-9 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
-              <Briefcase className="h-5 w-5" />
+        {[
+          { title: 'Created By (Seller Agent)', sub: 'Intermediary Details', icon: <Briefcase className="h-5 w-5" />, color: 'bg-blue-500/10 text-blue-600', data: quotation.seller },
+          { title: 'Prepared For (Buyer Customer)', sub: 'Target Account', icon: <User className="h-5 w-5" />, color: 'bg-emerald-500/10 text-emerald-600', data: quotation.buyer },
+        ].map((info, i) => (
+          <div key={i} className="bg-card border border-border rounded-xl p-5 shadow-xs">
+            <div className="flex items-center gap-3 mb-4 border-b border-border pb-3">
+              <div className={`h-9 w-9 rounded-lg flex items-center justify-center ${info.color}`}>{info.icon}</div>
+              <div>
+                <h3 className="font-bold text-foreground text-sm">{info.title}</h3>
+                <p className="text-[10px] text-muted-foreground font-bold uppercase">{info.sub}</p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-bold text-slate-800 text-sm">Created By (Seller Agent)</h3>
-              <p className="text-[10px] text-slate-400 font-bold uppercase">Intermediary Details</p>
-            </div>
-          </div>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-slate-400 font-medium">Name:</span>
-              <strong className="text-slate-800">{quotation.seller?.name}</strong>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-400 font-medium">Email:</span>
-              <strong className="text-slate-800">{quotation.seller?.email}</strong>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between"><span className="text-muted-foreground font-medium">Name:</span><strong className="text-foreground">{info.data?.name}</strong></div>
+              <div className="flex justify-between"><span className="text-muted-foreground font-medium">Email:</span><strong className="text-foreground">{info.data?.email}</strong></div>
             </div>
           </div>
-        </div>
-
-        {/* Buyer Info */}
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs">
-          <div className="flex items-center space-x-3 mb-4 border-b border-slate-100 pb-3">
-            <div className="h-9 w-9 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
-              <User className="h-5 w-5" />
-            </div>
-            <div>
-              <h3 className="font-bold text-slate-800 text-sm">Prepared For (Buyer Customer)</h3>
-              <p className="text-[10px] text-slate-400 font-bold uppercase">Target Account Details</p>
-            </div>
-          </div>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-slate-400 font-medium">Name:</span>
-              <strong className="text-slate-800">{quotation.buyer?.name}</strong>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-400 font-medium">Email:</span>
-              <strong className="text-slate-800">{quotation.buyer?.email}</strong>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* Line Items Table */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
-        <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center space-x-2">
-          <FileSpreadsheet className="h-5 w-5 text-slate-550" />
-          <h3 className="font-bold text-slate-800 text-sm">Quotation Line Items</h3>
+      <div className="bg-card rounded-xl border border-border overflow-hidden shadow-xs">
+        <div className="p-4 bg-secondary/40 border-b border-border flex items-center gap-2">
+          <FileSpreadsheet className="h-5 w-5 text-muted-foreground" />
+          <h3 className="font-bold text-foreground text-sm">Quotation Line Items</h3>
         </div>
-        
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50/50 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                <th className="py-3 px-5">Product Name</th>
-                <th className="py-3 px-5">Ordered Quantity</th>
-                <th className="py-3 px-5">Internal Base Quantity</th>
-                <th className="py-3 px-5">Unit Price (at order)</th>
+              <tr className="border-b border-border bg-secondary/20 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                <th className="py-3 px-5">Product</th>
+                <th className="py-3 px-5">Ordered Qty</th>
+                <th className="py-3 px-5">Unit Price</th>
                 <th className="py-3 px-5 text-right">Line Total</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-sm">
-              {quotation.items?.map((item) => (
-                <tr key={item.id} className="hover:bg-slate-50/20">
+            <tbody className="divide-y divide-border text-sm">
+              {quotation.items?.map(item => (
+                <tr key={item.id} className="hover:bg-secondary/10">
                   <td className="py-4 px-5">
-                    <p className="font-bold text-slate-800">{item.product?.name}</p>
-                    <p className="text-xs text-slate-400 font-mono mt-0.5">SKU: {item.product?.sku || 'N/A'}</p>
+                    <p className="font-bold text-foreground">{item.product?.name}</p>
+                    <p className="text-xs text-muted-foreground font-mono mt-0.5">SKU: {item.product?.sku || 'N/A'}</p>
                   </td>
-                  <td className="py-4 px-5 font-bold text-slate-700">
-                    {parseFloat(item.orderedQuantity).toFixed(2)} {getUnitLabel(item.orderedUnit)}
-                  </td>
-                  <td className="py-4 px-5 text-slate-500 font-semibold">
-                    {parseFloat(item.baseQuantity).toFixed(2)} {getUnitLabel(item.product?.baseUnit || item.orderedUnit === 'kg' ? 'g' : item.orderedUnit === 'L' ? 'mL' : item.orderedUnit)}
-                  </td>
-                  <td className="py-4 px-5 text-slate-600 font-medium">
-                    {formatCurrency(item.unitPriceAtOrder)} / {getUnitLabel(item.orderedUnit)}
-                  </td>
-                  <td className="py-4 px-5 text-right font-black text-slate-900">
-                    {formatCurrency(item.lineTotal)}
-                  </td>
+                  <td className="py-4 px-5 font-bold text-foreground">{parseFloat(item.orderedQuantity).toFixed(2)} {getUnitLabel(item.orderedUnit)}</td>
+                  <td className="py-4 px-5 text-muted-foreground font-medium">{formatCurrency(item.unitPriceAtOrder)} / {getUnitLabel(item.orderedUnit)}</td>
+                  <td className="py-4 px-5 text-right font-black text-foreground">{formatCurrency(item.lineTotal)}</td>
                 </tr>
               ))}
             </tbody>
             <tfoot>
-              <tr className="bg-slate-50/50 font-bold text-slate-800 border-t border-slate-200">
-                <td colSpan="4" className="py-4 px-5 text-right uppercase text-xs tracking-wider">Grand Total (INR):</td>
-                <td className="py-4 px-5 text-right text-lg font-black text-blue-600">
-                  {formatCurrency(quotation.totalAmount)}
-                </td>
+              <tr className="bg-secondary/20 border-t border-border">
+                <td colSpan="3" className="py-4 px-5 text-right text-xs font-bold text-muted-foreground uppercase tracking-wider">Grand Total (INR):</td>
+                <td className="py-4 px-5 text-right text-lg font-black text-role-primary">{formatCurrency(quotation.totalAmount)}</td>
               </tr>
             </tfoot>
           </table>
         </div>
       </div>
 
-      {/* Notes block */}
+      {/* Notes */}
       {quotation.notes && (
-        <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs">
-          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Quotation Notes / Terms</h4>
-          <p className="text-sm text-slate-650 font-medium bg-slate-50 p-3 rounded-lg border border-slate-100 whitespace-pre-line">
-            {quotation.notes}
-          </p>
+        <div className="bg-card border border-border rounded-xl p-5 shadow-xs">
+          <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Quotation Notes / Terms</h4>
+          <p className="text-sm text-foreground font-medium bg-secondary/25 p-3 rounded-lg border border-border whitespace-pre-line">{quotation.notes}</p>
         </div>
       )}
 
-      {/* Admin Actions Panel */}
+      {/* Approve / Reject Actions */}
       {quotation.status === 'pending' && (
-        <div className="bg-slate-800 text-white rounded-xl p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-md">
+        <div className="bg-foreground text-background rounded-xl p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-md">
           <div>
             <h4 className="font-bold text-base">Authorize Quotation</h4>
-            <p className="text-slate-400 text-xs mt-0.5">
-              Verify stock levels above before confirming. Approval decrements inventory.
-            </p>
+            <p className="text-muted-foreground text-xs mt-0.5">Verify stock levels before confirming. Approval decrements inventory immediately.</p>
           </div>
-          <div className="flex space-x-3 shrink-0">
+          <div className="flex gap-3 shrink-0">
             <button
               onClick={() => handleStatusChange('rejected')}
               disabled={actionLoading}
-              className="px-4 py-2.5 bg-slate-700 hover:bg-red-700 border border-slate-600 hover:border-red-655 text-white text-sm font-bold rounded-lg transition-all flex items-center cursor-pointer disabled:opacity-50"
+              className="px-4 py-2.5 bg-secondary/20 hover:bg-destructive/80 hover:text-white border border-secondary/30 text-background text-sm font-bold rounded-lg transition flex items-center cursor-pointer disabled:opacity-50"
             >
-              <X className="h-4 w-4 mr-2" /> Reject Quotation
+              <X className="h-4 w-4 mr-2" /> Reject
             </button>
             <button
               onClick={() => handleStatusChange('approved')}
               disabled={actionLoading}
-              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-black rounded-lg transition-all flex items-center shadow-lg shadow-blue-500/20 cursor-pointer disabled:opacity-50"
+              className="px-5 py-2.5 bg-role-accent hover:bg-role-accent/90 text-foreground text-sm font-black rounded-lg transition flex items-center shadow-lg cursor-pointer disabled:opacity-50"
             >
-              {actionLoading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Working...
-                </>
-              ) : (
-                <>
-                  <Check className="h-4 w-4 mr-2" /> Approve & Allocate Stock
-                </>
-              )}
+              {actionLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-2" />}
+              Approve & Allocate Stock
             </button>
           </div>
         </div>
       )}
+
+      {/* Comments Thread */}
+      <div className="bg-card border border-border rounded-xl overflow-hidden shadow-xs">
+        <div className="px-5 py-4 border-b border-border bg-secondary/30 flex items-center gap-2">
+          <MessageSquare className="h-4 w-4 text-role-accent" />
+          <h4 className="font-bold text-foreground text-sm">Notes & Discussion</h4>
+          <span className="text-xs text-muted-foreground">({comments.length})</span>
+        </div>
+        <div className="p-5 space-y-4 max-h-80 overflow-y-auto">
+          {comments.length === 0 ? (
+            <p className="text-center text-xs text-muted-foreground py-6">No comments yet. Start the discussion below.</p>
+          ) : comments.map(c => (
+            <div key={c.id} className="flex gap-3">
+              <div className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center text-xs font-black text-foreground shrink-0">
+                {c.user?.name?.charAt(0) || '?'}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-bold text-foreground">{c.user?.name}</span>
+                  <span className="text-[10px] text-muted-foreground capitalize bg-secondary px-1.5 py-0.5 rounded-full">{c.user?.role}</span>
+                  <span className="text-[10px] text-muted-foreground">{new Date(c.createdAt).toLocaleString()}</span>
+                </div>
+                <p className="text-sm text-foreground bg-secondary/30 rounded-lg px-3 py-2 border border-border leading-snug">{c.comment}</p>
+              </div>
+            </div>
+          ))}
+          <div ref={commentEndRef} />
+        </div>
+        <div className="px-5 py-4 border-t border-border flex gap-3">
+          <input
+            type="text"
+            placeholder="Add a note or question..."
+            value={commentText}
+            onChange={e => setCommentText(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handlePostComment()}
+            className="flex-1 text-sm border border-border rounded-lg px-3 py-2 bg-secondary/35 text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-role-accent transition-all"
+          />
+          <button
+            onClick={handlePostComment}
+            disabled={postingComment || !commentText.trim()}
+            className="inline-flex items-center bg-role-primary text-role-primary-foreground font-bold px-4 py-2 rounded-lg text-sm transition disabled:opacity-50 cursor-pointer shrink-0"
+          >
+            {postingComment ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -11,7 +11,7 @@ export default async function AdminLayout({ children }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row theme-admin">
+    <div className="min-h-screen bg-background text-foreground flex flex-col lg:flex-row theme-admin">
       <Sidebar user={session.user} />
       <main className="flex-1 lg:pl-64 pt-16 lg:pt-0 min-h-screen">
         <div className="p-6 sm:p-8 max-w-7xl mx-auto">

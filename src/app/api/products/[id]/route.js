@@ -9,8 +9,8 @@ export async function PUT(request, { params }) {
   const session = await auth();
   const { id } = params;
 
-  if (!session || session.user.role !== 'admin') {
-    return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });
+  if (!session || (session.user.role !== 'admin' && session.user.role !== 'seller')) {
+    return NextResponse.json({ error: 'Unauthorized. Admin or Seller role required.' }, { status: 403 });
   }
 
   try {
@@ -20,7 +20,12 @@ export async function PUT(request, { params }) {
     // Check if product exists
     const [existingProduct] = await db.select().from(products).where(eq(products.id, id)).limit(1);
     if (!existingProduct) {
-      return NextResponse.json({ error: 'Product not found' }, { status: 444 });
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
+
+    // Auth check: Sellers can only edit their own products
+    if (session.user.role === 'seller' && existingProduct.sellerId !== session.user.id) {
+      return NextResponse.json({ error: 'Unauthorized. You can only edit your own listings.' }, { status: 403 });
     }
 
     // Basic validation
@@ -69,14 +74,19 @@ export async function DELETE(request, { params }) {
   const session = await auth();
   const { id } = params;
 
-  if (!session || session.user.role !== 'admin') {
-    return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });
+  if (!session || (session.user.role !== 'admin' && session.user.role !== 'seller')) {
+    return NextResponse.json({ error: 'Unauthorized. Admin or Seller role required.' }, { status: 403 });
   }
 
   try {
     const [existingProduct] = await db.select().from(products).where(eq(products.id, id)).limit(1);
     if (!existingProduct) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
+
+    // Auth check: Sellers can only deactivate their own products
+    if (session.user.role === 'seller' && existingProduct.sellerId !== session.user.id) {
+      return NextResponse.json({ error: 'Unauthorized. You can only deactivate your own listings.' }, { status: 403 });
     }
 
     // Set isActive to false instead of hard deleting

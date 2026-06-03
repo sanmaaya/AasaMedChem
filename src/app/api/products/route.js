@@ -31,16 +31,28 @@ export async function GET(request) {
       conditions.push(eq(products.category, category));
     }
 
-    // Active status filter (non-admins only see active products)
-    if (!showInactive) {
+    // Active status filter
+    if (session?.user?.role === 'seller') {
+      conditions.push(
+        or(
+          eq(products.isActive, true),
+          eq(products.sellerId, session.user.id)
+        )
+      );
+    } else if (session?.user?.role !== 'admin') {
       conditions.push(eq(products.isActive, true));
     }
 
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-    const list = await db.select()
-      .from(products)
-      .where(whereClause);
+    const list = await db.query.products.findMany({
+      where: whereClause,
+      with: {
+        seller: {
+          columns: { id: true, name: true, email: true }
+        }
+      }
+    });
 
     return NextResponse.json(list);
   } catch (err) {
@@ -49,12 +61,12 @@ export async function GET(request) {
   }
 }
 
-// POST /api/products - Create a new product (Admin Only)
+// POST /api/products - Create a new product (Admin or Seller)
 export async function POST(request) {
   const session = await auth();
 
-  if (!session || session.user.role !== 'admin') {
-    return NextResponse.json({ error: 'Unauthorized. Admin role required.' }, { status: 403 });
+  if (!session || (session.user.role !== 'admin' && session.user.role !== 'seller')) {
+    return NextResponse.json({ error: 'Unauthorized. Admin or Seller role required.' }, { status: 403 });
   }
 
   try {
@@ -78,6 +90,9 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Price and quantity must be non-negative numbers' }, { status: 400 });
     }
 
+    // Assign sellerId if listed by a Seller user
+    const listingSellerId = session.user.role === 'seller' ? session.user.id : null;
+
     const [newProduct] = await db.insert(products).values({
       name,
       sku: sku || null,
@@ -86,7 +101,8 @@ export async function POST(request) {
       baseUnit,
       basePricePerUnit: price.toString(),
       stockQuantity: stock.toString(),
-      isActive: true
+      isActive: true,
+      sellerId: listingSellerId
     }).returning();
 
     return NextResponse.json(newProduct, { status: 201 });

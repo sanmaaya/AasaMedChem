@@ -253,15 +253,15 @@ export default function AdminUsersPage() {
                     {usersList.map((usr) => (
                       <tr key={usr.id} className="hover:bg-slate-50/40">
                         <td className="py-3 px-5">
-                          <p className="font-bold text-slate-850 dark:text-stone-105">{usr.name}</p>
+                          <p className="font-bold text-foreground">{usr.name}</p>
                           {usr.role === 'seller' && usr.businessInfo && (() => {
                             try {
                               const biz = JSON.parse(usr.businessInfo);
                               return (
-                                <div className="text-[10px] text-stone-500 dark:text-stone-400 bg-stone-50 dark:bg-stone-950 border border-stone-205 dark:border-stone-800 p-2 rounded-lg mt-1.5 space-y-0.5 max-w-xs leading-snug font-medium">
-                                  <p><strong className="text-stone-700 dark:text-stone-300">Agency:</strong> {biz.businessName}</p>
-                                  <p><strong className="text-stone-700 dark:text-stone-300">Licence:</strong> {biz.licenseNumber}</p>
-                                  {biz.notes && <p className="line-clamp-2"><strong className="text-stone-700 dark:text-stone-300">Focus:</strong> {biz.notes}</p>}
+                                <div className="text-[10px] text-muted-foreground bg-secondary/50 border border-border p-2 rounded-lg mt-1.5 space-y-0.5 max-w-xs leading-snug font-medium">
+                                  <p><strong className="text-foreground">Agency:</strong> {biz.businessName}</p>
+                                  <p><strong className="text-foreground">Licence:</strong> {biz.licenseNumber}</p>
+                                  {biz.notes && <p className="line-clamp-2"><strong className="text-foreground">Focus:</strong> {biz.notes}</p>}
                                 </div>
                               );
                             } catch (e) {
@@ -269,9 +269,9 @@ export default function AdminUsersPage() {
                             }
                           })()}
                         </td>
-                        <td className="py-3 px-5 text-slate-650 dark:text-stone-300 font-medium">
+                        <td className="py-3 px-5 text-foreground/90 font-medium">
                           <span className="flex items-center">
-                            <Mail className="h-3.5 w-3.5 text-slate-450 dark:text-stone-500 mr-1.5" /> {usr.email}
+                            <Mail className="h-3.5 w-3.5 text-muted-foreground mr-1.5" /> {usr.email}
                           </span>
                         </td>
                         <td className="py-3 px-5">
