@@ -18,11 +18,19 @@ import {
 export const revalidate = 0; // Disable caching
 
 export default async function LuxuryLandingPage() {
-  // Fetch active products to show a luxurious product showcase
-  const activeProducts = await db.select()
-    .from(products)
-    .where(eq(products.isActive, true))
-    .limit(4);
+  let activeProducts = [];
+  let dbError = '';
+
+  try {
+    // Fetch active products to show a luxurious product showcase
+    activeProducts = await db.select()
+      .from(products)
+      .where(eq(products.isActive, true))
+      .limit(4);
+  } catch (err) {
+    console.warn("Database connection is not configured yet:", err.message);
+    dbError = err.message;
+  }
 
   return (
     <div className="min-h-screen bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 transition-colors duration-300 flex flex-col justify-between">
@@ -147,26 +155,38 @@ export default async function LuxuryLandingPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {activeProducts.map((prod) => (
-                <div 
-                  key={prod.id} 
-                  className="bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 rounded-xl p-5 flex flex-col justify-between hover:shadow-lg hover:border-stone-300 transition duration-200"
-                >
-                  <div>
-                    <span className="text-[9px] font-bold text-stone-400 uppercase tracking-widest">{prod.category || 'Compound'}</span>
-                    <h3 className="font-bold text-stone-800 dark:text-stone-200 text-sm mt-1 line-clamp-1">{prod.name}</h3>
-                    <p className="text-[10px] text-slate-400 font-mono mt-0.5">SKU: {prod.sku || 'N/A'}</p>
-                    <p className="text-xs text-stone-500 mt-2 line-clamp-2 min-h-[2rem]">{prod.description || 'Raw compounding grade compound.'}</p>
-                  </div>
-                  
-                  <div className="mt-4 pt-3 border-t border-stone-150 dark:border-stone-800 flex items-center justify-between text-xs">
-                    <span className="text-stone-400 font-semibold">Price:</span>
-                    <strong className="font-bold text-stone-800 dark:text-stone-100">
-                      {formatCurrency(prod.basePricePerUnit)} / {prod.baseUnit}
-                    </strong>
-                  </div>
+              {dbError ? (
+                <div className="col-span-1 sm:col-span-2 lg:col-span-4 bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 p-6 rounded-xl text-xs leading-relaxed max-w-lg mx-auto text-center font-semibold">
+                  <p className="font-black text-sm">Database connection not initialized</p>
+                  <p className="mt-1 font-medium">{dbError}</p>
+                  <p className="mt-3 text-stone-500 dark:text-stone-400">Provide the DATABASE_URL connection string inside a local .env file in the project root to load the active compound catalog.</p>
                 </div>
-              ))}
+              ) : activeProducts.length === 0 ? (
+                <div className="col-span-1 sm:col-span-2 lg:col-span-4 py-8 text-center text-xs text-stone-400 font-bold uppercase tracking-wider">
+                  No active products found in the catalog.
+                </div>
+              ) : (
+                activeProducts.map((prod) => (
+                  <div 
+                    key={prod.id} 
+                    className="bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 rounded-xl p-5 flex flex-col justify-between hover:shadow-lg hover:border-stone-300 transition duration-200"
+                  >
+                    <div>
+                      <span className="text-[9px] font-bold text-stone-400 uppercase tracking-widest">{prod.category || 'Compound'}</span>
+                      <h3 className="font-bold text-stone-800 dark:text-stone-200 text-sm mt-1 line-clamp-1">{prod.name}</h3>
+                      <p className="text-[10px] text-slate-400 font-mono mt-0.5">SKU: {prod.sku || 'N/A'}</p>
+                      <p className="text-xs text-stone-500 mt-2 line-clamp-2 min-h-[2rem]">{prod.description || 'Raw compounding grade compound.'}</p>
+                    </div>
+                    
+                    <div className="mt-4 pt-3 border-t border-stone-150 dark:border-stone-800 flex items-center justify-between text-xs">
+                      <span className="text-stone-400 font-semibold">Price:</span>
+                      <strong className="font-bold text-stone-800 dark:text-stone-100">
+                        {formatCurrency(prod.basePricePerUnit)} / {prod.baseUnit}
+                      </strong>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </section>

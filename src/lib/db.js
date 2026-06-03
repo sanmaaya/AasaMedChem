@@ -2,10 +2,37 @@ import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import * as schema from './schema.js';
 
-if (!process.env.DATABASE_URL) {
-  console.warn("WARNING: DATABASE_URL is not set in environment variables.");
+let dbInstance = null;
+
+function getDb() {
+  if (dbInstance) return dbInstance;
+
+  const url = process.env.DATABASE_URL;
+  if (!url) {
+    // Return a proxy that throws only when an actual database operation is triggered
+    return new Proxy({}, {
+      get(target, prop) {
+        return () => {
+          throw new Error(
+            "Neon PostgreSQL connection string is missing. Please create a `.env` file in the project root and define your `DATABASE_URL` variable."
+          );
+        };
+      }
+    });
+  }
+
+  const sql = neon(url);
+  dbInstance = drizzle(sql, { schema });
+  return dbInstance;
 }
 
-const sql = neon(process.env.DATABASE_URL || '');
-export const db = drizzle(sql, { schema });
+// Proxy export to dynamically fetch the initialized Drizzle instance or trigger a helpful error
+export const db = new Proxy({}, {
+  get(target, prop) {
+    const activeDb = getDb();
+    const value = activeDb[prop];
+    return typeof value === 'function' ? value.bind(activeDb) : value;
+  }
+});
+
 export default db;
