@@ -6,22 +6,64 @@ import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import ThemeToggle from '@/components/ThemeToggle';
 import NotificationBell from '@/components/NotificationBell';
-import { 
-  LayoutDashboard, 
-  Package, 
-  FileText, 
-  Users, 
-  ShoppingCart, 
-  LogOut, 
-  Menu, 
+import {
+  LayoutDashboard,
+  Package,
+  FileText,
+  Users,
+  ShoppingCart,
+  LogOut,
+  Menu,
   X,
   User,
   ClipboardCheck,
   Tag,
-  Shield
+  Shield,
 } from 'lucide-react';
 
-export default function Sidebar({ user }) {
+type SidebarUser = {
+  role?: string;
+  name?: string | null;
+  email?: string | null;
+};
+
+function BrandMark({ compact = false }: { compact?: boolean }) {
+  return (
+    <div className={`flex items-center min-w-0 ${compact ? 'gap-2.5' : 'gap-3.5'}`}>
+      <div
+        className={`shrink-0 rounded-xl bg-role-primary flex items-center justify-center text-role-primary-foreground font-black shadow-sm ${
+          compact ? 'h-9 w-9 text-base' : 'h-10 w-10 text-lg'
+        }`}
+        aria-hidden
+      >
+        A
+      </div>
+      <div className="min-w-0 leading-tight">
+        <p
+          className={`font-serif-luxury font-black text-foreground tracking-tight truncate ${
+            compact ? 'text-sm' : 'text-[0.95rem]'
+          }`}
+        >
+          AasaMedChem
+        </p>
+        <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-[0.14em] mt-0.5">
+          B2B Workspace
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function HeaderActions({ className = '' }: { className?: string }) {
+  return (
+    <div className={`flex items-center shrink-0 gap-2 sm:gap-2.5 ${className}`}>
+      <ThemeToggle />
+      <NotificationBell />
+    </div>
+  );
+}
+
+export default function Sidebar({ user }: { user: SidebarUser }) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -29,7 +71,6 @@ export default function Sidebar({ user }) {
   const name = user?.name || 'User';
   const email = user?.email || '';
 
-  // Get navigation links based on role
   const getNavLinks = () => {
     switch (role) {
       case 'admin':
@@ -67,117 +108,103 @@ export default function Sidebar({ user }) {
     await signOut({ callbackUrl: '/login' });
   };
 
-  const getRoleBadgeColor = () => {
-    return 'bg-role-accent-light text-role-accent border-role-accent/30';
-  };
+  const roleBadgeClass =
+    'inline-flex items-center text-[10px] px-2.5 py-1 rounded-full border font-bold uppercase tracking-wide bg-role-accent-light text-role-accent border-role-accent/25';
 
-  const activeLinkClass = "flex items-center px-4 py-3 rounded-lg text-sm font-semibold bg-role-accent-light text-role-accent border-l-4 border-role-border-active transition-all-custom";
-  const inactiveLinkClass = "flex items-center px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-all-custom";
+  const activeLinkClass =
+    'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold bg-role-accent-light text-role-accent border-l-[3px] border-role-border-active transition-all-custom';
+  const inactiveLinkClass =
+    'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-muted-foreground hover:bg-secondary/80 hover:text-foreground transition-all-custom';
 
   return (
     <div className={`theme-${role}`}>
-      {/* Mobile Top Navbar */}
-      <div className="lg:hidden flex items-center justify-between bg-card border-b border-border px-4 py-3 h-16 fixed top-0 left-0 right-0 z-40 transition-colors duration-300">
-        <div className="flex items-center space-x-2">
-          <div className="h-8 w-8 rounded-lg bg-role-primary flex items-center justify-center text-role-primary-foreground font-bold text-lg">
-            A
+      {/* Mobile top bar */}
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 border-b border-border bg-card/95 backdrop-blur-md supports-[backdrop-filter]:bg-card/80">
+        <div className="flex items-center justify-between gap-4 min-h-[4.25rem] px-4 sm:px-5 py-3 max-w-[100vw]">
+          <BrandMark compact />
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <HeaderActions />
+            <button
+              type="button"
+              onClick={() => setIsOpen(!isOpen)}
+              className="p-2.5 rounded-xl border border-border bg-background hover:bg-secondary text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+              aria-label={isOpen ? 'Close menu' : 'Open menu'}
+            >
+              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
           </div>
-          <span className="font-serif-luxury font-black text-foreground text-sm tracking-tight">AasaMedChem</span>
         </div>
-        <div className="flex items-center space-x-2">
-          <ThemeToggle />
-          <NotificationBell />
-          <span className={`text-[9px] px-2 py-0.5 rounded-full border font-bold uppercase ${getRoleBadgeColor()}`}>
-            {role}
-          </span>
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="p-2 rounded-lg hover:bg-secondary text-muted-foreground focus:outline-hidden"
-          >
-            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
-        </div>
-      </div>
+      </header>
 
-      {/* Sidebar Drawer Container */}
+      {/* Sidebar drawer */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 w-64 border-r border-border bg-card flex flex-col justify-between transform transition-transform duration-300 lg:translate-x-0 ${
-          isOpen ? 'translate-x-0 h-full' : '-translate-x-full h-full lg:h-screen'
-        } pt-16 lg:pt-0 transition-colors duration-300`}
+        className={`fixed top-0 bottom-0 left-0 z-50 w-[min(100vw-1rem,17.5rem)] sm:w-64 border-r border-border bg-card flex flex-col transform transition-transform duration-300 ease-out lg:translate-x-0 ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        } lg:translate-x-0 h-full lg:h-screen pt-[4.25rem] lg:pt-0`}
       >
-        <div>
-          {/* Logo / Header */}
-          <div className="hidden lg:flex items-center justify-between px-6 py-6 border-b border-border">
-            <div className="flex items-center space-x-3">
-              <div className="h-9 w-9 rounded-lg bg-role-primary flex items-center justify-center text-role-primary-foreground font-black text-lg shadow-sm">
-                A
-              </div>
-              <div>
-                <h1 className="font-serif-luxury font-black text-foreground text-sm leading-tight">AasaMedChem</h1>
-                <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-wider block">B2B Workspace</span>
-              </div>
-            </div>
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <NotificationBell />
+        {/* Desktop brand + actions */}
+        <div className="hidden lg:flex flex-col gap-5 px-5 py-7 border-b border-border">
+          <BrandMark />
+          <div className="flex items-center justify-start gap-2.5">
+            <HeaderActions />
           </div>
-          </div>
-
-          {/* User Info Block */}
-          <div className="px-6 py-5 border-b border-border bg-secondary/30">
-            <div className="flex items-center space-x-3">
-              <div className="h-9 w-9 rounded-full bg-secondary flex items-center justify-center text-foreground">
-                <User className="h-5 w-5" />
-              </div>
-              <div className="overflow-hidden">
-                <p className="text-sm font-semibold text-foreground truncate">{name}</p>
-                <p className="text-xs text-muted-foreground truncate">{email}</p>
-              </div>
-            </div>
-            <div className="mt-3 flex">
-              <span className={`text-[9px] px-2 py-0.5 rounded-full border font-bold uppercase ${getRoleBadgeColor()}`}>
-                {role} Panel
-              </span>
-            </div>
-          </div>
-
-          {/* Nav Links */}
-          <nav className="px-4 py-4 space-y-1.5 overflow-y-auto">
-            {navLinks.map((link) => {
-              const Icon = link.icon;
-              const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className={isActive ? activeLinkClass : inactiveLinkClass}
-                >
-                  <Icon className="h-5 w-5 mr-3" />
-                  {link.name}
-                </Link>
-              );
-            })}
-          </nav>
         </div>
 
-        {/* Footer Actions */}
-        <div className="p-4 border-t border-border">
+        {/* User profile */}
+        <div className="px-5 py-5 border-b border-border bg-secondary/25">
+          <div className="flex items-center gap-3.5">
+            <div className="h-11 w-11 shrink-0 rounded-full bg-secondary border border-border flex items-center justify-center text-muted-foreground">
+              <User className="h-5 w-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-foreground truncate leading-snug">{name}</p>
+              <p className="text-xs text-muted-foreground truncate mt-0.5">{email}</p>
+            </div>
+          </div>
+          <div className="mt-4">
+            <span className={roleBadgeClass}>{role} panel</span>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto px-3 py-4 sm:px-4 space-y-1">
+          {navLinks.map((link) => {
+            const Icon = link.icon;
+            const isActive =
+              pathname === link.href || pathname.startsWith(link.href + '/');
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setIsOpen(false)}
+                className={isActive ? activeLinkClass : inactiveLinkClass}
+              >
+                <Icon className="h-5 w-5 shrink-0 opacity-90" aria-hidden />
+                <span className="truncate">{link.name}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Sign out */}
+        <div className="p-4 sm:p-5 border-t border-border mt-auto">
           <button
+            type="button"
             onClick={handleLogout}
-            className="w-full flex items-center justify-center px-4 py-2.5 text-sm font-bold text-destructive hover:bg-destructive/10 rounded-lg transition-all-custom cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-destructive hover:bg-destructive/10 rounded-xl transition-all-custom cursor-pointer"
           >
-            <LogOut className="h-4 w-4 mr-2" />
+            <LogOut className="h-4 w-4 shrink-0" />
             Sign Out
           </button>
         </div>
       </aside>
 
-      {/* Overlay for mobile menu */}
       {isOpen && (
-        <div
+        <button
+          type="button"
+          aria-label="Close menu overlay"
           onClick={() => setIsOpen(false)}
-          className="lg:hidden fixed inset-0 bg-foreground/40 z-30 transition-opacity"
+          className="lg:hidden fixed inset-0 z-30 bg-foreground/40 backdrop-blur-[1px]"
         />
       )}
     </div>

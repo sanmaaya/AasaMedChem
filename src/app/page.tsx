@@ -36,21 +36,19 @@ export default async function LuxuryLandingPage() {
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300 flex flex-col justify-between">
       
       {/* Marketplace Header */}
-      <header className="border-b border-border bg-card/80 backdrop-blur-md sticky top-0 z-50 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between gap-4">
-          {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2.5 shrink-0">
-            <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-black text-xl shadow-sm">
+      <header className="border-b border-border bg-card/90 backdrop-blur-md sticky top-0 z-50 transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-[4.5rem] py-3 flex flex-wrap items-center justify-between gap-4 sm:gap-6">
+          <Link href="/" className="flex items-center gap-3.5 shrink-0 min-w-0">
+            <div className="h-10 w-10 shrink-0 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-black text-lg shadow-sm">
               A
             </div>
-            <div>
-              <span className="font-serif-luxury font-black text-lg tracking-tight block">AasaMedChem</span>
-              <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest block -mt-1">Pharmaceutical Registry</span>
+            <div className="min-w-0 leading-tight">
+              <span className="font-serif-luxury font-black text-base sm:text-lg tracking-tight block truncate">AasaMedChem</span>
+              <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-[0.12em] block mt-0.5">Pharmaceutical Registry</span>
             </div>
           </Link>
 
-          {/* Search Bar Mockup */}
-          <div className="hidden md:flex items-center flex-1 max-w-lg mx-6 relative">
+          <div className="hidden md:flex items-center flex-1 max-w-lg mx-4 lg:mx-8 relative min-w-[12rem]">
             <input
               type="text"
               disabled
@@ -61,17 +59,17 @@ export default async function LuxuryLandingPage() {
           </div>
 
           {/* User actions */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 ml-auto">
             <ThemeToggle />
             <Link
               href="/login"
-              className="text-xs font-bold text-muted-foreground hover:text-foreground transition"
+              className="hidden sm:inline text-xs font-bold text-muted-foreground hover:text-foreground transition px-2 py-2"
             >
               Sign In
             </Link>
             <Link
               href="/login"
-              className="inline-flex items-center justify-center bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-4 py-2.5 rounded-lg text-xs transition cursor-pointer"
+              className="inline-flex items-center justify-center bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-4 sm:px-5 py-2.5 rounded-xl text-xs transition cursor-pointer whitespace-nowrap"
             >
               Access Dashboard
             </Link>
