@@ -18,7 +18,7 @@ export async function middleware(req) {
   const isLoginRoute = pathname === '/login';
   const isRootRoute = pathname === '/';
 
-  // Redirect for root route
+  // Redirect for root route if logged in, otherwise show landing page
   if (isRootRoute) {
     if (isLoggedIn) {
       if (userRole === 'admin') {
@@ -29,7 +29,7 @@ export async function middleware(req) {
         return NextResponse.redirect(new URL('/buyer/dashboard', req.url));
       }
     }
-    return NextResponse.redirect(new URL('/login', req.url));
+    return NextResponse.next();
   }
 
   // Redirect for login route if already logged in
