@@ -1,26 +1,126 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8fafc; /* Slate 50 */
+  --foreground: #0f172a; /* Slate 900 */
+  
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  
+  --primary: #3b82f6; /* Blue 500 */
+  --primary-foreground: #ffffff;
+  
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
+  
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #3b82f6;
+  
+  --radius: 0.75rem;
+
+  /* Default role fallback (blue) */
+  --role-primary: #3b82f6;
+  --role-primary-foreground: #ffffff;
+  --role-accent: #2563eb;
+  --role-accent-light: #eff6ff;
+  --role-border-active: #3b82f6;
 }
 
-@theme inline {
+/* Admin Theme: Slate / Dark Accent */
+.theme-admin {
+  --role-primary: #1e293b; /* Slate 800 */
+  --role-primary-foreground: #f8fafc; /* Slate 50 */
+  --role-accent: #0f172a; /* Slate 900 */
+  --role-accent-light: #f1f5f9; /* Slate 100 */
+  --role-border-active: #475569; /* Slate 600 */
+}
+
+/* Seller Theme: Blue Accent */
+.theme-seller {
+  --role-primary: #2563eb; /* Blue 600 */
+  --role-primary-foreground: #ffffff;
+  --role-accent: #1d4ed8; /* Blue 700 */
+  --role-accent-light: #eff6ff; /* Blue 50 */
+  --role-border-active: #3b82f6; /* Blue 500 */
+}
+
+/* Buyer Theme: Green Accent */
+.theme-buyer {
+  --role-primary: #059669; /* Emerald 600 */
+  --role-primary-foreground: #ffffff;
+  --role-accent: #047857; /* Emerald 700 */
+  --role-accent-light: #ecfdf5; /* Emerald 50 */
+  --role-border-active: #10b981; /* Emerald 500 */
+}
+
+@theme {
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Role dynamic colors */
+  --color-role-primary: var(--role-primary);
+  --color-role-primary-foreground: var(--role-primary-foreground);
+  --color-role-accent: var(--role-accent);
+  --color-role-accent-light: var(--role-accent-light);
+  --color-role-border-active: var(--role-border-active);
+  
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  min-height: 100vh;
+}
+
+/* Subtle micro-animations and utility transitions */
+.transition-all-custom {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Form input focus styles */
+.input-focus-ring {
+  @apply focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-role-border-active;
+}
+
+/* Interactive card hover */
+.card-hover {
+  @apply hover:shadow-md hover:border-role-border-active transition-all duration-200;
 }
