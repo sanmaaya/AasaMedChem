@@ -57,65 +57,63 @@ export async function PATCH(request, { params }) {
         return NextResponse.json({ error: `Quotation has already been resolved as: ${quote.status}` }, { status: 400 });
       }
 
-      const updatedQuotation = await db.transaction(async (tx) => {
-        // If approving, decrement stock and log to stock history
-        if (status === 'approved') {
-          const items = await tx.select()
-            .from(quotationItems)
-            .where(eq(quotationItems.quotationId, id));
+      // Sequential operations — neon-http does not support transactions
+      let updatedQuotation: typeof quotations.$inferSelect;
 
-          for (const item of items) {
-            const [productRecord] = await tx.select()
-              .from(products)
-              .where(eq(products.id, item.productId))
-              .limit(1);
+      // If approving, decrement stock and log history first
+      if (status === 'approved') {
+        const items = await db.select()
+          .from(quotationItems)
+          .where(eq(quotationItems.quotationId, id));
 
-            if (!productRecord) {
-              throw new Error(`Product not found: ${item.productId}`);
-            }
+        for (const item of items) {
+          const [productRecord] = await db.select()
+            .from(products)
+            .where(eq(products.id, item.productId))
+            .limit(1);
 
-            const currentStock = new Decimal(productRecord.stockQuantity);
-            const baseQtyNeeded = new Decimal(item.baseQuantity);
-
-            if (currentStock.lt(baseQtyNeeded)) {
-              throw new Error(
-                `Insufficient stock for '${productRecord.name}'. Available: ${currentStock.toString()} ${productRecord.baseUnit}, Required: ${baseQtyNeeded.toString()} ${productRecord.baseUnit}`
-              );
-            }
-
-            const newStock = currentStock.sub(baseQtyNeeded);
-
-            // Decrement in database
-            await tx.update(products)
-              .set({ 
-                stockQuantity: newStock.toString(), 
-                updatedAt: new Date() 
-              })
-              .where(eq(products.id, item.productId));
-
-            // Log stock history change
-            await tx.insert(stockHistoryLogs).values({
-              productId: item.productId,
-              userId: currentUserId,
-              oldStock: currentStock.toString(),
-              newStock: newStock.toString(),
-              changeReason: 'QUOTATION_ALLOCATE',
-            });
+          if (!productRecord) {
+            throw new Error(`Product not found: ${item.productId}`);
           }
+
+          const currentStock = new Decimal(productRecord.stockQuantity);
+          const baseQtyNeeded = new Decimal(item.baseQuantity);
+
+          if (currentStock.lt(baseQtyNeeded)) {
+            throw new Error(
+              `Insufficient stock for '${productRecord.name}'. Available: ${currentStock.toString()} ${productRecord.baseUnit}, Required: ${baseQtyNeeded.toString()} ${productRecord.baseUnit}`
+            );
+          }
+
+          const newStock = currentStock.sub(baseQtyNeeded);
+
+          // Decrement stock
+          await db.update(products)
+            .set({ stockQuantity: newStock.toString(), updatedAt: new Date() })
+            .where(eq(products.id, item.productId));
+
+          // Log stock history
+          await db.insert(stockHistoryLogs).values({
+            productId: item.productId,
+            userId: currentUserId,
+            oldStock: currentStock.toString(),
+            newStock: newStock.toString(),
+            changeReason: 'QUOTATION_ALLOCATE',
+          });
         }
+      }
 
-        // Update main quotation status
-        const [updated] = await tx.update(quotations)
-          .set({ 
-            status, 
-            orderStatus: status === 'approved' ? 'packed' : 'pending', // approved orders start at packed status
-            updatedAt: new Date() 
-          })
-          .where(eq(quotations.id, id))
-          .returning();
+      // Update main quotation status
+      const [updated] = await db.update(quotations)
+        .set({
+          status,
+          orderStatus: status === 'approved' ? 'packed' : 'pending',
+          updatedAt: new Date()
+        })
+        .where(eq(quotations.id, id))
+        .returning();
 
-        return updated;
-      });
+      updatedQuotation = updated;
 
       // Send emails & logs outside transaction
       await logAction(currentUserId, `QUOTATION_${status.toUpperCase()}`, { quotationId: id });
