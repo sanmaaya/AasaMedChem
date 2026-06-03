@@ -252,9 +252,27 @@ export default function AdminUsersPage() {
                   <tbody className="divide-y divide-slate-100 text-sm">
                     {usersList.map((usr) => (
                       <tr key={usr.id} className="hover:bg-slate-50/40">
-                        <td className="py-3 px-5 font-bold text-slate-800">{usr.name}</td>
-                        <td className="py-3 px-5 text-slate-650 font-medium flex items-center">
-                          <Mail className="h-3.5 w-3.5 text-slate-450 mr-1.5" /> {usr.email}
+                        <td className="py-3 px-5">
+                          <p className="font-bold text-slate-850 dark:text-stone-105">{usr.name}</p>
+                          {usr.role === 'seller' && usr.businessInfo && (() => {
+                            try {
+                              const biz = JSON.parse(usr.businessInfo);
+                              return (
+                                <div className="text-[10px] text-stone-500 dark:text-stone-400 bg-stone-50 dark:bg-stone-950 border border-stone-205 dark:border-stone-800 p-2 rounded-lg mt-1.5 space-y-0.5 max-w-xs leading-snug font-medium">
+                                  <p><strong className="text-stone-700 dark:text-stone-300">Agency:</strong> {biz.businessName}</p>
+                                  <p><strong className="text-stone-700 dark:text-stone-300">Licence:</strong> {biz.licenseNumber}</p>
+                                  {biz.notes && <p className="line-clamp-2"><strong className="text-stone-700 dark:text-stone-300">Focus:</strong> {biz.notes}</p>}
+                                </div>
+                              );
+                            } catch (e) {
+                              return null;
+                            }
+                          })()}
+                        </td>
+                        <td className="py-3 px-5 text-slate-650 dark:text-stone-300 font-medium">
+                          <span className="flex items-center">
+                            <Mail className="h-3.5 w-3.5 text-slate-450 dark:text-stone-500 mr-1.5" /> {usr.email}
+                          </span>
                         </td>
                         <td className="py-3 px-5">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold border uppercase ${getRoleBadge(usr.role)}`}>

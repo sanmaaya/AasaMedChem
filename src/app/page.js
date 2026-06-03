@@ -1,196 +1,206 @@
 import React from 'react';
 import Link from 'next/link';
+import { db } from '@/lib/db.js';
+import { products } from '@/lib/schema.js';
+import { eq } from 'drizzle-orm';
+import { formatCurrency } from '@/lib/units.js';
+import ThemeToggle from '@/components/ThemeToggle.jsx';
 import { 
-  ArrowRight, 
-  ShieldCheck, 
+  Search, 
   ShoppingBag, 
+  ArrowRight, 
   Activity, 
-  Lock, 
-  Sparkles, 
-  Coins, 
-  Database 
+  ShieldCheck, 
+  Award, 
+  Globe 
 } from 'lucide-react';
 
-export default function LandingPage() {
-  return (
-    <div className="min-h-screen bg-slate-905 text-white bg-slate-900 relative overflow-hidden font-sans">
-      {/* Background Neon Glowing Orbs */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-emerald-600/10 rounded-full blur-[120px] pointer-events-none" />
+export const revalidate = 0; // Disable caching
 
-      {/* Header / Navbar */}
-      <header className="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-2.5">
-            <div className="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-xl shadow-md shadow-blue-500/20">
+export default async function LuxuryLandingPage() {
+  // Fetch active products to show a luxurious product showcase
+  const activeProducts = await db.select()
+    .from(products)
+    .where(eq(products.isActive, true))
+    .limit(4);
+
+  return (
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 transition-colors duration-300 flex flex-col justify-between">
+      
+      {/* Luxury Marketplace Header */}
+      <header className="border-b border-stone-200 dark:border-stone-850 bg-white/80 dark:bg-stone-900/80 backdrop-blur-md sticky top-0 z-50 transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between gap-4">
+          {/* Logo */}
+          <Link href="/" className="flex items-center space-x-2.5 shrink-0">
+            <div className="h-9 w-9 rounded-lg bg-stone-900 dark:bg-stone-100 flex items-center justify-center text-white dark:text-stone-950 font-black text-xl shadow-sm">
               A
             </div>
             <div>
-              <span className="font-extrabold text-base tracking-tight text-white block">Aasa MedChem</span>
-              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block -mt-1">Inventory OS</span>
+              <span className="font-serif-luxury font-black text-lg tracking-tight block">Aasa MedChem</span>
+              <span className="text-[9px] text-stone-500 font-bold uppercase tracking-widest block -mt-1">Luxury Marketplace</span>
             </div>
+          </Link>
+
+          {/* Luxury Search Bar Mockup */}
+          <div className="hidden md:flex items-center flex-1 max-w-lg mx-6 relative">
+            <input
+              type="text"
+              disabled
+              placeholder="Search compounding powders, sterile solutions, consumables..."
+              className="w-full text-xs border border-stone-200 dark:border-stone-800 rounded-full pl-4 pr-10 py-2.5 bg-stone-50 dark:bg-stone-950 font-medium text-stone-400 cursor-not-allowed"
+            />
+            <Search className="h-4 w-4 text-stone-400 absolute right-3.5" />
           </div>
-          <nav className="flex items-center space-x-6">
+
+          {/* User actions */}
+          <div className="flex items-center space-x-4">
+            <ThemeToggle />
             <Link
               href="/login"
-              className="text-xs font-bold text-slate-350 hover:text-white transition"
-            >
-              System Status
-            </Link>
-            <Link
-              href="/login"
-              className="inline-flex items-center justify-center bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/60 font-bold px-4 py-2 rounded-lg text-xs transition cursor-pointer"
+              className="text-xs font-bold text-stone-605 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100 transition"
             >
               Sign In
             </Link>
-          </nav>
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-stone-200 text-white dark:text-stone-950 font-bold px-4 py-2.5 rounded-lg text-xs transition cursor-pointer"
+            >
+              Launch Console
+            </Link>
+          </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-6 pt-20 pb-16 text-center space-y-8 relative z-10">
-        {/* Glow pill */}
-        <div className="inline-flex items-center space-x-1.5 bg-blue-500/10 border border-blue-500/20 px-3.5 py-1.5 rounded-full text-xs font-semibold text-blue-400">
-          <Sparkles className="h-3.5 w-3.5" />
-          <span>Introducing Aasa MedChem OS v1.0</span>
-        </div>
-
-        {/* Hero Title */}
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tight max-w-4xl mx-auto leading-[1.1] sm:leading-[1.15]">
-          High-Precision Compounding <br className="hidden md:inline" />
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400">
-            & Order Allocation Hub
-          </span>
-        </h1>
-
-        {/* Hero Description */}
-        <p className="text-slate-400 text-sm sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed font-medium">
-          A seamless, database-locked three-party order orchestration system built for Admins, Sellers, and Buyers. Zero floating-point rounding errors with exact volume and weight measurements.
-        </p>
-
-        {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4">
-          <Link
-            href="/login"
-            className="w-full sm:w-auto inline-flex items-center justify-center bg-blue-650 hover:bg-blue-700 text-white font-bold px-6 py-3.5 rounded-xl shadow-lg shadow-blue-650/15 hover:shadow-xl transition-all duration-200 text-sm cursor-pointer group"
-          >
-            Launch System Console
-            <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
-          </Link>
-          <a
-            href="#features"
-            className="w-full sm:w-auto inline-flex items-center justify-center bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/80 font-bold px-6 py-3.5 rounded-xl text-sm transition"
-          >
-            Read Integration Docs
-          </a>
-        </div>
-      </section>
-
-      {/* Core Roles / Modules Section */}
-      <section id="features" className="max-w-7xl mx-auto px-6 py-16 border-t border-slate-800/60 relative z-10">
-        <div className="text-center mb-12">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">The 3-Party Workflow</h2>
-          <p className="text-slate-400 text-xs sm:text-sm mt-2 max-w-lg mx-auto">
-            Authorized roles integrate seamlessly with inventory safeguards and unit dimension transformations.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Admin card */}
-          <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 hover:border-slate-600 transition duration-200 space-y-4">
-            <div className="h-10 w-10 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-slate-300 shadow-sm">
-              <ShieldCheck className="h-5 w-5" />
+      {/* Hero Banner Section */}
+      <main className="flex-1">
+        <section className="max-w-7xl mx-auto px-6 pt-12 pb-16 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-6">
+            <div className="inline-flex items-center space-x-1.5 bg-amber-500/10 px-3 py-1.5 rounded-full text-[10px] font-bold text-amber-705 dark:text-amber-400 uppercase tracking-widest">
+              <Award className="h-3.5 w-3.5" />
+              <span>World-Class Chemical Compounding Registry</span>
             </div>
-            <h3 className="font-extrabold text-white text-lg">1. Administrator Panel</h3>
-            <p className="text-slate-400 text-xs leading-relaxed font-medium">
-              Manage wholesale inventory SKU quantities. Authorize pending quotations, trigger transactional locks, and automatically decrement physical raw stock upon approval.
-            </p>
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider pt-2 border-t border-slate-800">
-              slate / zinc palette
-            </div>
-          </div>
-
-          {/* Seller card */}
-          <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 hover:border-blue-500/50 transition duration-200 space-y-4">
-            <div className="h-10 w-10 rounded-xl bg-blue-950/80 border border-blue-800/50 flex items-center justify-center text-blue-400 shadow-sm">
-              <Activity className="h-5 w-5" />
-            </div>
-            <h3 className="font-extrabold text-white text-lg">2. Seller Agent Cart</h3>
-            <p className="text-slate-400 text-xs leading-relaxed font-medium">
-              Browse compounds with real-time price calculations in weight, volume, or count dimensions (g/kg/mL/L/unit). Link quotations to active buyer accounts with strict validations.
-            </p>
-            <div className="text-xs font-semibold text-blue-400 uppercase tracking-wider pt-2 border-t border-slate-800">
-              royal blue palette
-            </div>
-          </div>
-
-          {/* Buyer card */}
-          <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 hover:border-emerald-500/50 transition duration-200 space-y-4">
-            <div className="h-10 w-10 rounded-xl bg-emerald-950/80 border border-emerald-800/50 flex items-center justify-center text-emerald-400 shadow-sm">
-              <ShoppingBag className="h-5 w-5" />
-            </div>
-            <h3 className="font-extrabold text-white text-lg">3. Buyer Customer Portal</h3>
-            <p className="text-slate-400 text-xs leading-relaxed font-medium">
-              Transparent read-only order monitoring. Check quotation review statuses, view compounding ratios, lock-in order prices, and display totals with absolute security.
-            </p>
-            <div className="text-xs font-semibold text-emerald-400 uppercase tracking-wider pt-2 border-t border-slate-800">
-              emerald green palette
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Under the hood Tech Highlights */}
-      <section className="bg-slate-900 px-6 py-16 border-t border-slate-850">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Engineered for Pharmaceutical Data Integrity</h2>
-            <p className="text-slate-400 text-xs sm:text-sm mt-3 leading-relaxed font-medium">
-              compounding inventories demand error-free quantity mappings and strict transaction controls. The platform leverages Neon serverless PostgreSQL, executing operations in atomic blocks with decimals-checks to prevent concurrency race hazards.
-            </p>
             
-            <div className="grid grid-cols-2 gap-4 mt-8">
-              <div className="flex items-start space-x-3">
-                <div className="h-8 w-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400 mt-0.5 shrink-0">
-                  <Coins className="h-4 w-4" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-white uppercase">6-Decimal Precision</h4>
-                  <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">Uses PostgreSQL numeric(20,6) values with decimal.js calculations.</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <div className="h-8 w-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400 mt-0.5 shrink-0">
-                  <Database className="h-4 w-4" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-white uppercase">Database Locks</h4>
-                  <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">Checks and updates stock inside atomic transactions to prevent double allocation.</p>
-                </div>
-              </div>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif-luxury font-black text-stone-850 dark:text-stone-50 tracking-tight leading-[1.05]">
+              Compounding Assets <br />
+              & Elite Distribution.
+            </h1>
+            
+            <p className="text-stone-550 dark:text-stone-400 text-sm sm:text-base leading-relaxed font-medium max-w-lg">
+              A minimalist, medical B2B commerce standard. Delivering absolute quantity control, Drizzle atomic database locking, and conversion-precision for wholesale pharmaceutical accounts.
+            </p>
+
+            <div className="flex items-center space-x-4 pt-2">
+              <Link
+                href="/login"
+                className="inline-flex items-center justify-center bg-stone-900 hover:bg-stone-805 dark:bg-stone-100 dark:hover:bg-stone-200 text-white dark:text-stone-950 font-bold px-6 py-3.5 rounded-xl text-sm transition shadow-md group cursor-pointer"
+              >
+                Sign In to Console
+                <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link
+                href="/register/seller"
+                className="inline-flex items-center justify-center bg-white hover:bg-stone-50 dark:bg-stone-900 dark:hover:bg-stone-850 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-800 font-bold px-6 py-3.5 rounded-xl text-sm transition"
+              >
+                Register as Seller
+              </Link>
             </div>
           </div>
 
-          <div className="bg-slate-850 border border-slate-800 p-6 rounded-2xl shadow-inner font-mono text-[11px] text-slate-350 space-y-2.5 overflow-x-auto max-w-full">
-            <div className="flex justify-between border-b border-slate-800 pb-2 mb-2 font-bold text-slate-400">
-              <span>lib/units.js - Internal Conversions</span>
-              <span className="text-blue-400">v1.0</span>
+          {/* Visual card representive of chemical catalogue */}
+          <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-6 rounded-2xl shadow-xl space-y-4 transition duration-300">
+            <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-3">
+              <span className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest">Active Catalogue Preview</span>
+              <div className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
             </div>
-            <p className="text-slate-500">// Conversion factor weights and volumes</p>
-            <p><span className="text-blue-400">export const</span> UNIT_DIMENSIONS = &#123;</p>
-            <p className="pl-4">g:    &#123; dimension: <span className="text-emerald-400">'weight'</span>,  toBase: <span className="text-amber-500">1</span> &#125;,</p>
-            <p className="pl-4">kg:   &#123; dimension: <span className="text-emerald-400">'weight'</span>,  toBase: <span className="text-amber-500">1000</span> &#125;,</p>
-            <p className="pl-4">mL:   &#123; dimension: <span className="text-emerald-400">'volume'</span>,  toBase: <span className="text-amber-500">1</span> &#125;,</p>
-            <p className="pl-4">L:    &#123; dimension: <span className="text-emerald-400">'volume'</span>,  toBase: <span className="text-amber-500">1000</span> &#125;,</p>
-            <p className="pl-4">unit: &#123; dimension: <span className="text-emerald-400">'count'</span>,   toBase: <span className="text-amber-500">1</span> &#125;,</p>
-            <p>&#125;;</p>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-stone-50 dark:bg-stone-950 border border-stone-100 dark:border-stone-800 rounded-lg">
+                <div>
+                  <span className="font-bold text-xs text-stone-800 dark:text-stone-200 block">Compounding weight (g/kg)</span>
+                  <span className="text-[10px] text-stone-400 dark:text-stone-500">e.g. Paracetamol Raw Compounding</span>
+                </div>
+                <span className="text-xs font-bold text-stone-500">Grams</span>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-stone-50 dark:bg-stone-950 border border-stone-100 dark:border-stone-800 rounded-lg">
+                <div>
+                  <span className="font-bold text-xs text-stone-800 dark:text-stone-200 block">Compounding volume (mL/L)</span>
+                  <span className="text-[10px] text-stone-400 dark:text-stone-500">e.g. comp solvents, sterile fluid solution</span>
+                </div>
+                <span className="text-xs font-bold text-stone-500">Milliliters</span>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-stone-50 dark:bg-stone-950 border border-stone-100 dark:border-stone-800 rounded-lg">
+                <div>
+                  <span className="font-bold text-xs text-stone-800 dark:text-stone-200 block">Consumable counts (unit)</span>
+                  <span className="text-[10px] text-stone-400 dark:text-stone-500">e.g. protective respirator shields</span>
+                </div>
+                <span className="text-xs font-bold text-stone-500">Units</span>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-800/60 py-8 bg-slate-905 text-center text-[10px] text-slate-500 uppercase tracking-widest font-semibold">
-        © 2026 Aasa MedChem Inc. All Rights Reserved. Compounding Operations OS.
+        {/* Product Showcase (Commercial Section) */}
+        <section className="bg-white dark:bg-stone-900 border-t border-b border-stone-200 dark:border-stone-850 py-16 px-6 transition duration-300">
+          <div className="max-w-7xl mx-auto space-y-10">
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl sm:text-3xl font-serif-luxury font-black text-stone-850 dark:text-stone-100">Featured Chemical Compounds</h2>
+              <p className="text-xs sm:text-sm text-stone-400 max-w-md mx-auto">Compounding chemicals pre-checked and approved for licensed purchase.</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {activeProducts.map((prod) => (
+                <div 
+                  key={prod.id} 
+                  className="bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-850 rounded-xl p-5 flex flex-col justify-between hover:shadow-lg hover:border-stone-300 transition duration-200"
+                >
+                  <div>
+                    <span className="text-[9px] font-bold text-stone-400 uppercase tracking-widest">{prod.category || 'Compound'}</span>
+                    <h3 className="font-bold text-stone-800 dark:text-stone-200 text-sm mt-1 line-clamp-1">{prod.name}</h3>
+                    <p className="text-[10px] text-slate-400 font-mono mt-0.5">SKU: {prod.sku || 'N/A'}</p>
+                    <p className="text-xs text-stone-500 mt-2 line-clamp-2 min-h-[2rem]">{prod.description || 'Raw compounding grade compound.'}</p>
+                  </div>
+                  
+                  <div className="mt-4 pt-3 border-t border-stone-150 dark:border-stone-800 flex items-center justify-between text-xs">
+                    <span className="text-stone-400 font-semibold">Price:</span>
+                    <strong className="font-bold text-stone-800 dark:text-stone-100">
+                      {formatCurrency(prod.basePricePerUnit)} / {prod.baseUnit}
+                    </strong>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Partner / Become a Seller Section (Required by User request) */}
+        <section id="partner" className="max-w-4xl mx-auto px-6 py-16 text-center space-y-6">
+          <div className="h-10 w-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600 mx-auto">
+            <Globe className="h-5 w-5" />
+          </div>
+          
+          <h2 className="text-2xl sm:text-3xl font-serif-luxury font-black text-stone-850 dark:text-stone-50">
+            Do you wish to be a seller?
+          </h2>
+          
+          <p className="text-stone-550 dark:text-stone-400 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed font-medium">
+            Join the Aasa MedChem network! Request a seller agent account by filling out your business profile, drug licensing registry, and chemical compounding specializations. Once registered, you can immediately begin creating quotations for buyers.
+          </p>
+
+          <div>
+            <Link
+              href="/register/seller"
+              className="inline-flex items-center justify-center bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-stone-200 text-white dark:text-stone-950 font-bold px-6 py-3 rounded-lg text-sm shadow-md transition cursor-pointer"
+            >
+              Become a Partner Seller representative <ArrowRight className="h-4 w-4 ml-2" />
+            </Link>
+          </div>
+        </section>
+      </main>
+
+      {/* Luxury Footer */}
+      <footer className="border-t border-stone-200 dark:border-stone-850 bg-white dark:bg-stone-900 py-8 px-6 text-center transition duration-300">
+        <p className="text-[10px] text-stone-400 dark:text-stone-500 uppercase tracking-widest font-semibold">
+          © 2026 Aasa MedChem Inc. All Rights Reserved. Pharmaceutical Supply Chain OS.
+        </p>
       </footer>
     </div>
   );

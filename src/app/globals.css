@@ -1,69 +1,122 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc; /* Slate 50 */
-  --foreground: #0f172a; /* Slate 900 */
+  /* Luxury Minimal Light Theme (Default) */
+  --background: #fafaf9; /* Warm stone off-white */
+  --foreground: #1c1917; /* Stone 900 */
   
   --card: #ffffff;
-  --card-foreground: #0f172a;
+  --card-foreground: #1c1917;
   
   --popover: #ffffff;
-  --popover-foreground: #0f172a;
+  --popover-foreground: #1c1917;
   
-  --primary: #3b82f6; /* Blue 500 */
-  --primary-foreground: #ffffff;
+  --primary: #1c1917; /* Deep Charcoal */
+  --primary-foreground: #fafaf9;
   
-  --secondary: #f1f5f9;
-  --secondary-foreground: #0f172a;
+  --secondary: #f5f5f4; /* Stone 100 */
+  --secondary-foreground: #1c1917;
   
-  --muted: #f8fafc;
-  --muted-foreground: #64748b;
+  --muted: #f5f5f4;
+  --muted-foreground: #78716c; /* Stone 500 */
   
-  --accent: #f1f5f9;
-  --accent-foreground: #0f172a;
+  --accent: #f5f5f4;
+  --accent-foreground: #1c1917;
+  
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  
+  --border: #e7e5e4; /* Stone 200 */
+  --input: #e7e5e4;
+  --ring: #1c1917;
+  
+  --radius: 0.5rem;
+
+  /* Default role fallback (Charcoal/Gold) */
+  --role-primary: #1c1917;
+  --role-primary-foreground: #fafaf9;
+  --role-accent: #b45309; /* Gold/Bronze accent */
+  --role-accent-light: #fef3c7; /* Light gold background */
+  --role-border-active: #d97706;
+}
+
+/* Luxury Minimal Dark Theme (.dark override) */
+.dark {
+  --background: #0c0a09; /* Stone 950 */
+  --foreground: #f5f5f4; /* Stone 100 */
+  
+  --card: #1c1917; /* Stone 900 */
+  --card-foreground: #f5f5f4;
+  
+  --popover: #1c1917;
+  --popover-foreground: #f5f5f4;
+  
+  --primary: #f5f5f4;
+  --primary-foreground: #1c1917;
+  
+  --secondary: #2e2a24; /* Stone 800 */
+  --secondary-foreground: #f5f5f4;
+  
+  --muted: #1c1917;
+  --muted-foreground: #a8a29e; /* Stone 400 */
+  
+  --accent: #1c1917;
+  --accent-foreground: #f5f5f4;
   
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
   
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #3b82f6;
-  
-  --radius: 0.75rem;
+  --border: #2e2a24;
+  --input: #2e2a24;
+  --ring: #d6d3d1; /* Stone 300 */
+}
 
-  /* Default role fallback (blue) */
-  --role-primary: #3b82f6;
+/* Admin Theme: Slate / Gold Accent */
+.theme-admin {
+  --role-primary: #1c1917;
+  --role-primary-foreground: #fafaf9;
+  --role-accent: #d97706; /* Bronze gold */
+  --role-accent-light: #fef3c7;
+  --role-border-active: #d97706;
+}
+.dark .theme-admin {
+  --role-primary: #f5f5f4;
+  --role-primary-foreground: #1c1917;
+  --role-accent: #f59e0b;
+  --role-accent-light: #451a03;
+  --role-border-active: #f59e0b;
+}
+
+/* Seller Theme: Luxury Navy / Sapphire */
+.theme-seller {
+  --role-primary: #0f172a; /* Slate 900 / dark navy */
   --role-primary-foreground: #ffffff;
-  --role-accent: #2563eb;
+  --role-accent: #2563eb; /* Royal blue */
   --role-accent-light: #eff6ff;
   --role-border-active: #3b82f6;
 }
-
-/* Admin Theme: Slate / Dark Accent */
-.theme-admin {
-  --role-primary: #1e293b; /* Slate 800 */
-  --role-primary-foreground: #f8fafc; /* Slate 50 */
-  --role-accent: #0f172a; /* Slate 900 */
-  --role-accent-light: #f1f5f9; /* Slate 100 */
-  --role-border-active: #475569; /* Slate 600 */
+.dark .theme-seller {
+  --role-primary: #f8fafc;
+  --role-primary-foreground: #0f172a;
+  --role-accent: #60a5fa;
+  --role-accent-light: #172554;
+  --role-border-active: #60a5fa;
 }
 
-/* Seller Theme: Blue Accent */
-.theme-seller {
-  --role-primary: #2563eb; /* Blue 600 */
-  --role-primary-foreground: #ffffff;
-  --role-accent: #1d4ed8; /* Blue 700 */
-  --role-accent-light: #eff6ff; /* Blue 50 */
-  --role-border-active: #3b82f6; /* Blue 500 */
-}
-
-/* Buyer Theme: Green Accent */
+/* Buyer Theme: Luxury Forest / Sage */
 .theme-buyer {
-  --role-primary: #059669; /* Emerald 600 */
+  --role-primary: #14532d; /* Forest green */
   --role-primary-foreground: #ffffff;
-  --role-accent: #047857; /* Emerald 700 */
-  --role-accent-light: #ecfdf5; /* Emerald 50 */
-  --role-border-active: #10b981; /* Emerald 500 */
+  --role-accent: #0f766e; /* Teal */
+  --role-accent-light: #f0fdf4;
+  --role-border-active: #16a34a;
+}
+.dark .theme-buyer {
+  --role-primary: #f0fdf4;
+  --role-primary-foreground: #14532d;
+  --role-accent: #2dd4bf;
+  --role-accent-light: #14532d;
+  --role-border-active: #2dd4bf;
 }
 
 @theme {
@@ -106,21 +159,25 @@
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: "Playfair Display", Georgia, Cambria, "Times New Roman", Times, serif;
   min-height: 100vh;
 }
 
-/* Subtle micro-animations and utility transitions */
+/* Luxury layout elements */
+h1, h2, h3, .font-serif-luxury {
+  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+}
+
+input, select, textarea, button, p, span, td, th {
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* Transition effects */
 .transition-all-custom {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Form input focus styles */
-.input-focus-ring {
-  @apply focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-role-border-active;
-}
-
-/* Interactive card hover */
-.card-hover {
-  @apply hover:shadow-md hover:border-role-border-active transition-all duration-200;
+/* Theme switch transitions */
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
 }

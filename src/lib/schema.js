@@ -7,6 +7,7 @@ export const users = pgTable('users', {
   passwordHash: text('password_hash').notNull(),
   role: text('role').notNull(), // 'admin' | 'seller' | 'buyer'
   name: text('name').notNull(),
+  businessInfo: text('business_info'), // Business metadata for Sellers
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
 

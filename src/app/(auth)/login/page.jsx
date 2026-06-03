@@ -2,7 +2,9 @@
 
 import React, { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { Lock, Mail, Loader2, KeyRound } from 'lucide-react';
+import { Lock, Mail, Loader2, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+import ThemeToggle from '@/components/ThemeToggle.jsx';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -22,16 +24,15 @@ export default function LoginPage() {
       setError('');
       
       const res = await signIn('credentials', {
-        email,
+        email: email.trim().toLowerCase(),
         password,
         redirect: false,
       });
 
       if (res?.error) {
-        setError('Invalid email or password. Please verify your credentials.');
+        setError('Invalid credentials. Please verify your email and password.');
         setLoading(false);
       } else {
-        // Success: Redirect to root where middleware will push to the correct dashboard
         window.location.href = '/';
       }
     } catch (err) {
@@ -41,40 +42,46 @@ export default function LoginPage() {
     }
   };
 
-  // Pre-fills form fields for easy testing
-  const handleQuickLogin = (demoEmail, demoPassword) => {
-    setEmail(demoEmail);
-    setPassword(demoPassword);
-    setError('');
-  };
-
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col justify-center items-center px-4 relative overflow-hidden">
-      {/* Background abstract designs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" />
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 flex flex-col justify-center items-center px-4 relative transition-colors duration-300">
+      {/* Top Navbar Actions (Theme Toggle & Back Link) */}
+      <div className="absolute top-6 left-6 right-6 flex items-center justify-between z-20">
+        <Link
+          href="/"
+          className="inline-flex items-center text-xs font-bold text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 transition"
+        >
+          <ArrowLeft className="h-4 w-4 mr-1.5" /> Back to Store
+        </Link>
+        <ThemeToggle />
+      </div>
 
-      {/* Main card */}
-      <div className="w-full max-w-md bg-slate-800/80 backdrop-blur-md border border-slate-700 p-8 rounded-2xl shadow-2xl relative z-10">
+      {/* Main minimal luxury login box */}
+      <div className="w-full max-w-md bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-8 rounded-2xl shadow-xl transition-all duration-300 relative z-10">
         <div className="text-center mb-8">
-          <div className="h-12 w-12 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-2xl mx-auto shadow-md shadow-blue-500/20">
+          <div className="h-11 w-11 rounded-lg bg-stone-900 dark:bg-stone-100 flex items-center justify-center text-white dark:text-stone-950 font-black text-xl mx-auto shadow-sm">
             A
           </div>
-          <h2 className="text-2xl font-extrabold text-white mt-4 tracking-tight">Aasa MedChem Hub</h2>
-          <p className="text-slate-400 text-xs mt-1">Inventory & Order Management System</p>
+          <h2 className="text-2xl font-serif-luxury font-black text-stone-850 dark:text-stone-100 mt-4 tracking-tight">
+            Sign In to Aasa MedChem
+          </h2>
+          <p className="text-stone-500 dark:text-stone-400 text-xs mt-1.5 font-medium">
+            Enter your credentials to access your dashboard console
+          </p>
         </div>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs sm:text-sm rounded-lg p-3.5 mb-5 font-semibold">
+          <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400 text-xs sm:text-sm rounded-lg p-3.5 mb-5 font-semibold">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-xs font-bold text-slate-300 block mb-1.5">Email Address</label>
+            <label className="text-[10px] font-bold tracking-wider text-stone-400 dark:text-stone-500 uppercase block mb-1.5">
+              Email Address
+            </label>
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
+              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-stone-400 dark:text-stone-500">
                 <Mail className="h-4 w-4" />
               </span>
               <input
@@ -82,16 +89,20 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@aasa.com"
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-10 pr-4 py-2.5 text-sm text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                placeholder="agent@aasa.com"
+                className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg pl-10 pr-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 focus:outline-hidden focus:ring-2 focus:ring-stone-400 dark:focus:ring-stone-500 transition"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-300 block mb-1.5">Password</label>
+            <div className="flex justify-between items-center mb-1.5">
+              <label className="text-[10px] font-bold tracking-wider text-stone-400 dark:text-stone-500 uppercase block">
+                Password
+              </label>
+            </div>
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
+              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-stone-400 dark:text-stone-500">
                 <Lock className="h-4 w-4" />
               </span>
               <input
@@ -100,7 +111,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-10 pr-4 py-2.5 text-sm text-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full bg-stone-50 dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg pl-10 pr-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 focus:outline-hidden focus:ring-2 focus:ring-stone-400 dark:focus:ring-stone-500 transition"
               />
             </div>
           </div>
@@ -108,54 +119,23 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg text-sm font-bold shadow-md shadow-blue-500/10 hover:shadow-lg transition-all flex items-center justify-center cursor-pointer disabled:opacity-50"
+            className="w-full bg-stone-900 hover:bg-stone-800 dark:bg-stone-100 dark:hover:bg-stone-200 text-white dark:text-stone-950 py-3 rounded-lg text-sm font-bold shadow-sm hover:shadow-md transition-all flex items-center justify-center cursor-pointer disabled:opacity-50 mt-6"
           >
             {loading ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Logging in...
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Authorizing...
               </>
             ) : (
               'Sign In to Dashboard'
             )}
           </button>
         </form>
-
-        {/* Demo Credentials Quick Panel */}
-        <div className="mt-8 pt-6 border-t border-slate-700/60">
-          <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-3 flex items-center justify-center">
-            <KeyRound className="h-3.5 w-3.5 mr-1 text-slate-500" /> Test Credentials (Click to Fill)
-          </p>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <button
-              onClick={() => handleQuickLogin('admin@aasa.com', 'admin123')}
-              className="bg-slate-700 hover:bg-slate-650 text-slate-200 py-2 px-2.5 rounded-lg border border-slate-600/50 hover:border-slate-500 text-left transition font-medium cursor-pointer"
-            >
-              <div className="font-bold text-[10px] text-blue-400 uppercase">Admin</div>
-              <div className="truncate">admin@aasa.com</div>
-            </button>
-            <button
-              onClick={() => handleQuickLogin('seller@aasa.com', 'seller123')}
-              className="bg-slate-700 hover:bg-slate-650 text-slate-200 py-2 px-2.5 rounded-lg border border-slate-600/50 hover:border-slate-500 text-left transition font-medium cursor-pointer"
-            >
-              <div className="font-bold text-[10px] text-amber-400 uppercase">Seller</div>
-              <div className="truncate">seller@aasa.com</div>
-            </button>
-            <button
-              onClick={() => handleQuickLogin('buyer@aasa.com', 'buyer123')}
-              className="bg-slate-700 hover:bg-slate-650 text-slate-200 py-2 px-2.5 rounded-lg border border-slate-600/50 hover:border-slate-500 text-left transition font-medium cursor-pointer"
-            >
-              <div className="font-bold text-[10px] text-emerald-400 uppercase">Buyer 1</div>
-              <div className="truncate">buyer@aasa.com</div>
-            </button>
-            <button
-              onClick={() => handleQuickLogin('buyer2@aasa.com', 'buyer123')}
-              className="bg-slate-700 hover:bg-slate-650 text-slate-200 py-2 px-2.5 rounded-lg border border-slate-600/50 hover:border-slate-500 text-left transition font-medium cursor-pointer"
-            >
-              <div className="font-bold text-[10px] text-teal-400 uppercase">Buyer 2</div>
-              <div className="truncate">buyer2@aasa.com</div>
-            </button>
-          </div>
-        </div>
+        
+        {/* Helper footer */}
+        <p className="text-[10px] text-center text-stone-450 dark:text-stone-500 mt-6 leading-relaxed">
+          Default Admin account: <span className="font-bold text-stone-600 dark:text-stone-400">admin@aasa.com</span><br/>
+          Need to register? <Link href="/#partner" className="font-bold text-stone-800 dark:text-stone-200 hover:underline">Become a Seller representative</Link>
+        </p>
       </div>
     </div>
   );

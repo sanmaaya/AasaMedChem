@@ -39,24 +39,32 @@ async function seed() {
         passwordHash: adminPasswordHash,
         role: 'admin',
         name: 'AASA System Administrator',
+        businessInfo: null,
       },
       {
         email: 'seller@aasa.com',
         passwordHash: sellerPasswordHash,
         role: 'seller',
         name: 'Rahul Sharma (Seller Agent)',
+        businessInfo: JSON.stringify({
+          businessName: "Aasa MedChem Retailers Ltd.",
+          licenseNumber: "LIC-MED-772911",
+          notes: "Designated default wholesale agent."
+        }),
       },
       {
         email: 'buyer@aasa.com',
         passwordHash: buyerPasswordHash,
         role: 'buyer',
         name: 'Apollo Pharmacy Delhi (Buyer)',
+        businessInfo: null,
       },
       {
         email: 'buyer2@aasa.com',
         passwordHash: buyerPasswordHash,
         role: 'buyer',
         name: 'MedPlus Pharmacy Gurgaon (Buyer 2)',
+        businessInfo: null,
       },
     ]).returning();
 

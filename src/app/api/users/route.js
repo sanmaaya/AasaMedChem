@@ -22,6 +22,7 @@ export async function GET(request) {
       email: users.email,
       name: users.name,
       role: users.role,
+      businessInfo: users.businessInfo,
       createdAt: users.createdAt
     }).from(users);
 
